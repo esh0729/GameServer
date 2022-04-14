@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Project1
+namespace ServerFramework
 {
-	class Server
+	public enum SyncWorkType
 	{
-		static void Main()
-		{
-			Console.WriteLine("Test");
-		}
+		User = 1
 	}
 }

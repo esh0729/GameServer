@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project1", "Project1\Project1.csproj", "{DAC00CFE-1F19-42D0-A834-CBAE10A0A14D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerFramework", "ServerFramework\ServerFramework.csproj", "{07CF6B5F-3987-496B-8555-A70141430BC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCommon", "ClientCommon\ClientCommon.csproj", "{76482DD1-A5CB-492C-8FF8-604D56FF8FD5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{176D07C0-45C3-4405-BAAF-EF4266D334E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer", "GameServer\GameServer.csproj", "{DAC00CFE-1F19-42D0-A834-CBAE10A0A14D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,6 +17,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07CF6B5F-3987-496B-8555-A70141430BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07CF6B5F-3987-496B-8555-A70141430BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07CF6B5F-3987-496B-8555-A70141430BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07CF6B5F-3987-496B-8555-A70141430BC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76482DD1-A5CB-492C-8FF8-604D56FF8FD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76482DD1-A5CB-492C-8FF8-604D56FF8FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76482DD1-A5CB-492C-8FF8-604D56FF8FD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76482DD1-A5CB-492C-8FF8-604D56FF8FD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{176D07C0-45C3-4405-BAAF-EF4266D334E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{176D07C0-45C3-4405-BAAF-EF4266D334E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{176D07C0-45C3-4405-BAAF-EF4266D334E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{176D07C0-45C3-4405-BAAF-EF4266D334E0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DAC00CFE-1F19-42D0-A834-CBAE10A0A14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DAC00CFE-1F19-42D0-A834-CBAE10A0A14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAC00CFE-1F19-42D0-A834-CBAE10A0A14D}.Release|Any CPU.ActiveCfg = Release|Any CPU

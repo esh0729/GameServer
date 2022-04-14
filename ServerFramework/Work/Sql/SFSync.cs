@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace ServerFramework
+{
+	public class SFSync
+	{
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Member variables
+
+		private object m_id = null;
+		private ManualResetEvent m_waitingSignal = new ManualResetEvent(true);
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Constructors
+
+		public SFSync(object id)
+		{
+			if (id == null)
+				throw new ArgumentNullException("id");
+
+			m_id = id;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Properties
+
+		public object id
+		{
+			get { return m_id; }
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Member functions
+
+		public void Waiting()
+		{
+			m_waitingSignal.WaitOne();
+		}
+
+		public void Set()
+		{
+			m_waitingSignal.Set();
+		}
+
+		public void Reset()
+		{
+			m_waitingSignal.Reset();
+		}
+	}
+}

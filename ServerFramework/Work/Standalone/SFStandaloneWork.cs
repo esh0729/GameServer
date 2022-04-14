@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace ServerFramework
+{
+	public class SFStandaloneWork
+	{
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Member variables
+
+		private ISFWork m_work = null;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Properties
+
+		public ISFWork work
+		{
+			get { return m_work; }
+			set { m_work = value; }
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Member functions
+
+		public void Schedule()
+		{
+			ThreadPool.QueueUserWorkItem(RunWork);
+		}
+
+		private void RunWork(object state)
+		{
+			m_work.Run();
+		}
+	}
+}
