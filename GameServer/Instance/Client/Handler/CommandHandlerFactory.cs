@@ -22,7 +22,18 @@ namespace GameServer
 
 		protected override void InitInternal()
 		{
+			//
+			// 계정
+			//
+
 			AddCommandHandler<LoginCommandHandler>(CommandName.Login);
+			AddCommandHandler<LobbyInfoCommandHandler>(CommandName.LobbyInfo);
+
+			//
+			// 영웅
+			//
+
+			AddCommandHandler<HeroCreateCommandHandler>(CommandName.HeroCreate);
 		}
 	}
 }

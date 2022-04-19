@@ -4,6 +4,17 @@
     {
         None = 0,
 
-        Login
+        //
+        // 계정
+        //
+
+        Login,
+        LobbyInfo,
+
+        //
+        // 영웅
+        //
+
+        HeroCreate
     }
 }

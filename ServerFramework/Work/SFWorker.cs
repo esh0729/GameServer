@@ -77,6 +77,10 @@ namespace ServerFramework
 
 		private void Dispose()
 		{
+			//
+			// 모든작업이 끝날때 까지 대기
+			//
+
 			m_endSignal.WaitOne();
 
 			m_nextSignal.Dispose();

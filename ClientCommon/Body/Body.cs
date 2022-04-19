@@ -17,7 +17,7 @@ namespace ClientCommon
 			return stream.ToArray();
 		}
 
-		protected virtual void Serialize(PacketWriter writer)
+		public virtual void Serialize(PacketWriter writer)
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace ClientCommon
 			Deserialize(reader);
 		}
 
-		protected virtual void Deserialize(PacketReader reader)
+		public virtual void Deserialize(PacketReader reader)
 		{
 		}
 	}

@@ -7,11 +7,11 @@ namespace ClientCommon
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		public virtual void Serialize(BinaryWriter writer)
+		public virtual void Serialize(PacketWriter writer)
 		{
 		}
 
-		public virtual void Deserialize(BinaryReader reader)
+		public virtual void Deserialize(PacketReader reader)
 		{
 		}
 	}

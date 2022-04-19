@@ -7,42 +7,64 @@ using ServerFramework;
 
 namespace GameServer
 {
-	public class AccountSynchronizer : ClientPeerSynchronizer
+	public class HeroSynchronizer : AccountSynchronizer
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		protected Account m_account = null;
-		protected bool m_bRequiredGlobalLock = false;
+		protected Hero m_hero = null;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
-		public AccountSynchronizer(Account account, ISFWork work, bool bRequiredGlobalLock)
-			: base(account.clientPeer, work)
+		public HeroSynchronizer(Hero hero, ISFWork work, bool bRequiredGlobalLock)
+			: base(hero.account, work, bRequiredGlobalLock)
 		{
-			if (account == null)
-				throw new ArgumentNullException("account");
+			if (hero == null)
+				throw new ArgumentNullException("hero");
 
-			m_account = account;
-			m_bRequiredGlobalLock = bRequiredGlobalLock;
+			m_hero = hero;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
+		//
+		// 영웅은 현재 장소가 있을경우 현재 장소 Lock 처리후 진행
+		//
+
 		public override void Start()
 		{
-			if (m_account.currentHero != null)
+			Place place = m_hero.currentPlace;
+
+			if (m_bRequiredGlobalLock)
 			{
-				HeroSynchronizer heroSynchronizer = new HeroSynchronizer(m_account.currentHero, m_work, m_bRequiredGlobalLock);
-				heroSynchronizer.Start();
+				lock (Cache.instance.syncObject)
+				{
+					if (place != null)
+					{
+						lock (place.syncObject)
+						{
+							lock (syncObject)
+							{
+								m_work.Run();
+							}
+						}
+					}
+					else
+					{
+						lock (syncObject)
+						{
+							m_work.Run();
+						}
+					}
+				}
 			}
 			else
 			{
-				if (m_bRequiredGlobalLock)
+				if (place != null)
 				{
-					lock (Cache.instance.syncObject)
+					lock (place.syncObject)
 					{
 						lock (syncObject)
 						{

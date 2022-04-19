@@ -39,9 +39,23 @@
   <ItemGroup>
     <Compile Include="Account.cs" />
     <Compile Include="Cache.cs" />
+    <Compile Include="Instance\Client\Handler\Command\Login\HeroCreateCommandHandler.cs" />
+    <Compile Include="Instance\Client\Handler\Command\Login\LobbyInfoCommandHandler.cs" />
+    <Compile Include="Instance\Client\Handler\Command\Login\LoginRequiredCommandHandler.cs" />
     <Compile Include="Instance\Client\Handler\Handler.cs" />
     <Compile Include="Instance\Client\ServerEvent\ServerEvent.cs" />
+    <Compile Include="Instance\Hero\Hero.cs" />
+    <Compile Include="Instance\Place\PhysicalPlace.cs" />
+    <Compile Include="Instance\Place\Place.cs" />
+    <Compile Include="Instance\Sector.cs" />
+    <Compile Include="Instance\Unit.cs" />
+    <Compile Include="Model\Character\Character.cs" />
+    <Compile Include="Model\Place\Continent.cs" />
+    <Compile Include="Model\Place\Location.cs" />
+    <Compile Include="Model\Rect3D.cs" />
+    <Compile Include="Model\Vector3.cs" />
     <Compile Include="System\DB\GameDBDocEx.cs" />
+    <Compile Include="System\DB\UserDBDocEx.cs" />
     <Compile Include="System\Synchronizer\AccountSynchronizer.cs" />
     <Compile Include="System\Synchronizer\ClientPeerSynchronizer.cs" />
     <Compile Include="Model\GameServer.cs" />
@@ -51,12 +65,13 @@
     <Compile Include="System\AccessToken.cs" />
     <Compile Include="System\Excpetion\CommandHandleException.cs" />
     <Compile Include="Instance\Client\Handler\Command\CommandHandler.cs" />
-    <Compile Include="Instance\Client\Handler\Command\LoginCommandHandler.cs" />
+    <Compile Include="Instance\Client\Handler\Command\Login\LoginCommandHandler.cs" />
     <Compile Include="System\ClientPeer.cs" />
     <Compile Include="System\DB\UserDBDoc.cs" />
     <Compile Include="System\AppConfig.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="System\PeerImpl.cs" />
+    <Compile Include="System\Synchronizer\HeroSynchronizer.cs" />
     <Compile Include="System\Synchronizer\Synchronizer.cs" />
     <Compile Include="System\Util\DateTimeUtil.cs" />
     <Compile Include="System\Util\JsonUtil.cs" />
@@ -101,6 +116,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Instance\Client\Handler\Command\Login\InGame\" />
     <Folder Include="Instance\Client\Handler\Event\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

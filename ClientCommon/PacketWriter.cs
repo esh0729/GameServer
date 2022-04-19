@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace ClientCommon
 {
@@ -14,6 +15,37 @@ namespace ClientCommon
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
+
+		public void Write(Guid guid)
+		{
+			Write(guid.ToString());
+		}
+
+		public void Write(Guid[] guids)
+		{
+			if (guids == null)
+			{
+				Write(false);
+				return;
+			}
+
+			Write(true);
+
+			int nLength = guids.Length;
+			Write(nLength);
+
+			for(int i = 0; i < nLength; i++)
+			{
+				Write(guids[i]);
+			}
+		}
+
+		public void Write(PDVector3 vector3)
+		{
+			Write(vector3.x);
+			Write(vector3.y);
+			Write(vector3.z);
+		}
 
 		public void Write(PacketData instance)
 		{

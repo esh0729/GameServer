@@ -1,13 +1,16 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ClientCommon
 {
-	public class LoginCommandBody : CommandBody
+	public class SEBHeroEnterEventBody : ServerEventBody
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		public string accessToken;
+		public PDHero hero;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
@@ -16,18 +19,14 @@ namespace ClientCommon
 		{
 			base.Serialize(writer);
 
-			writer.Write(accessToken);
+			writer.Write(hero);
 		}
 
 		public override void Deserialize(PacketReader reader)
 		{
 			base.Deserialize(reader);
 
-			accessToken = reader.ReadString();
+			hero = reader.ReadPacketData<PDHero>();
 		}
-	}
-
-	public class LoginResponseBody : ResponseBody
-	{
 	}
 }

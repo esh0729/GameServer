@@ -49,12 +49,32 @@ namespace GameServer
 		}
 
 		//
-		//
+		// 계정
 		//
 
 		public static void SendLoginDuplicatedEvent(ClientPeer clientPeer)
 		{
 			Send(ServerEventName.LoginDuplicated, null, clientPeer);
+		}
+
+		//
+		// 영웅
+		//
+
+		public static void SendHeroEnter(IEnumerable<ClientPeer> clientPeers, PDHero hero)
+		{
+			SEBHeroEnterEventBody body = new SEBHeroEnterEventBody();
+			body.hero = hero;
+
+			Send(ServerEventName.HeroEnter, body, clientPeers);
+		}
+
+		public static void SendHeroExit(IEnumerable<ClientPeer> clientPeers, Guid heroId)
+		{
+			SEBHeroExitEventBody body = new SEBHeroExitEventBody();
+			body.heroId = heroId;
+
+			Send(ServerEventName.HeroExit, body, clientPeers);
 		}
 	}
 }

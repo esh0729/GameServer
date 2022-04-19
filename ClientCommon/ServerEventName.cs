@@ -2,6 +2,17 @@
 {
 	public enum ServerEventName : int
 	{
-		LoginDuplicated = 1
+		//
+		// 계정
+		//
+
+		LoginDuplicated,
+
+		//
+		// 영웅
+		//
+
+		HeroEnter,
+		HeroExit
 	}
 }

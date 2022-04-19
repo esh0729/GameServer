@@ -44,10 +44,16 @@
     <Compile Include="Body\Body.cs" />
     <Compile Include="Body\ClientEventBody\ClientEventBody.cs" />
     <Compile Include="Body\CommandBody\CommandBody.cs" />
+    <Compile Include="Body\CommandBody\HeroCreateCommandBody.cs" />
+    <Compile Include="Body\CommandBody\LobbyInfoCommandBody.cs" />
     <Compile Include="Body\CommandBody\LoginCommandBody.cs" />
     <Compile Include="Body\ServerEventBody\Account\SEBLoginDuplicatedEventBody.cs" />
+    <Compile Include="Body\ServerEventBody\Place\SEBHeroEnterEventBody.cs" />
+    <Compile Include="Body\ServerEventBody\Place\SEBHeroExitEventBody.cs" />
     <Compile Include="Body\ServerEventBody\ServerEventBody.cs" />
     <Compile Include="CommandName.cs" />
+    <Compile Include="PacketData\Hero\PDHero.cs" />
+    <Compile Include="PacketData\Hero\PDLobbyHero.cs" />
     <Compile Include="PacketData\PacketData.cs" />
     <Compile Include="PacketData\PDVector3.cs" />
     <Compile Include="PacketReader.cs" />

@@ -73,6 +73,12 @@ namespace GameServer
 				//
 
 				InitSystemData(conn);
+
+				//
+				// 리소스
+				//
+
+				Resource.instance.Init(conn);
 			}
 			finally
 			{

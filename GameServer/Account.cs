@@ -17,6 +17,8 @@ namespace GameServer
 		private Guid m_userId = Guid.Empty;
 		private DateTimeOffset m_regTime = DateTimeOffset.MinValue;
 
+		private Hero m_currentHero = null;
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
@@ -56,6 +58,12 @@ namespace GameServer
 			get { return m_clientPeer.syncObject; }
 		}
 
+		public Hero currentHero
+		{
+			get { return m_currentHero; }
+			set { m_currentHero = value; }
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
@@ -80,6 +88,9 @@ namespace GameServer
 
 		public void Logout()
 		{
+			if (m_currentHero != null)
+				m_currentHero.Logout();
+
 			m_clientPeer.account = null;
 
 			Cache.instance.RemoveAccount(m_id);

@@ -2,7 +2,7 @@
 
 namespace ClientCommon
 {
-	public class PDVector3 : PacketData
+	public struct PDVector3
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
@@ -12,24 +12,13 @@ namespace ClientCommon
 		public float z;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Member functions
+		// Constructors
 
-		public override void Serialize(BinaryWriter writer)
+		public PDVector3(float fX, float fY, float fZ)
 		{
-			base.Serialize(writer);
-
-			writer.Write(x);
-			writer.Write(y);
-			writer.Write(z);
-		}
-
-		public override void Deserialize(BinaryReader reader)
-		{
-			base.Deserialize(reader);
-
-			x = reader.ReadSingle();
-			y = reader.ReadSingle();
-			z = reader.ReadSingle();
+			x = fX;
+			y = fY;
+			z = fZ;
 		}
 	}
 }
