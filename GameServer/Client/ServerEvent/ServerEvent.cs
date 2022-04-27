@@ -76,5 +76,44 @@ namespace GameServer
 
 			Send(ServerEventName.HeroExit, body, clientPeers);
 		}
+
+		public static void SendHeroMove(IEnumerable<ClientPeer> clientPeers, Guid heroId, PDVector3 position, float fYRotation)
+		{
+			SEBHeroMoveEventBody body = new SEBHeroMoveEventBody();
+			body.heroId = heroId;
+			body.position = position;
+			body.yRotation = fYRotation;
+
+			Send(ServerEventName.HeroMove, body, clientPeers);
+		}
+
+		//
+		// 관심영역
+		//
+
+		public static void SendInterestedAreaChanged(ClientPeer clientPeer, PDHero[] addedHeroes, Guid[] removedHeroes)
+		{
+			SEBInterestedAreaChangedEventBody body = new SEBInterestedAreaChangedEventBody();
+			body.addedHeroes = addedHeroes;
+			body.removedHeroes = removedHeroes;
+
+			Send(ServerEventName.InterestedAreaChanged, body, clientPeer);
+		}
+
+		public static void SendHeroInterestedAreaEnter(IEnumerable<ClientPeer> clientPeers, PDHero hero)
+		{
+			SEBHeroInterestedAreaEnterEventBody body = new SEBHeroInterestedAreaEnterEventBody();
+			body.hero = hero;
+
+			Send(ServerEventName.HeroInterestedAreaEnter, body, clientPeers);
+		}
+
+		public static void SendHeroInterestedAreaExit(IEnumerable<ClientPeer> clientPeers, Guid heroId)
+		{
+			SEBHeroInterestedAreaExitEventBody body = new SEBHeroInterestedAreaExitEventBody();
+			body.heroid = heroId;
+
+			Send(ServerEventName.HeroInterestedAreaExit, body, clientPeers);
+		}
 	}
 }

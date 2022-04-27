@@ -37,35 +37,49 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\HeroInitEnterCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\HeroLogoutCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\InGameCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\Move\HeroMoveCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\Move\HeroMoveEndCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\Move\HeroMoveStartCommandHandler.cs" />
+    <Compile Include="Instance\Account\Account.cs" />
     <Compile Include="Cache.cs" />
-    <Compile Include="Instance\Client\Handler\Command\Login\HeroCreateCommandHandler.cs" />
-    <Compile Include="Instance\Client\Handler\Command\Login\LobbyInfoCommandHandler.cs" />
-    <Compile Include="Instance\Client\Handler\Command\Login\LoginRequiredCommandHandler.cs" />
-    <Compile Include="Instance\Client\Handler\Handler.cs" />
-    <Compile Include="Instance\Client\ServerEvent\ServerEvent.cs" />
+    <Compile Include="Client\Handler\Command\Login\HeroCreateCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\InGame\HeroLoginCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\LobbyInfoCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\LoginRequiredCommandHandler.cs" />
+    <Compile Include="Client\Handler\Handler.cs" />
+    <Compile Include="Client\ServerEvent\ServerEvent.cs" />
+    <Compile Include="Instance\Entrance\EntranceParam.cs" />
+    <Compile Include="Instance\Entrance\HeroInitEnterParam.cs" />
     <Compile Include="Instance\Hero\Hero.cs" />
+    <Compile Include="Instance\Hero\HeroStatus.cs" />
+    <Compile Include="Instance\Place\Continent\ContinentInstance.cs" />
+    <Compile Include="Instance\Place\InterestedAreaInfo.cs" />
     <Compile Include="Instance\Place\PhysicalPlace.cs" />
     <Compile Include="Instance\Place\Place.cs" />
-    <Compile Include="Instance\Sector.cs" />
+    <Compile Include="Instance\Place\Sector.cs" />
     <Compile Include="Instance\Unit.cs" />
     <Compile Include="Model\Character\Character.cs" />
     <Compile Include="Model\Place\Continent.cs" />
     <Compile Include="Model\Place\Location.cs" />
+    <Compile Include="Model\Place\PlaceType.cs" />
     <Compile Include="Model\Rect3D.cs" />
     <Compile Include="Model\Vector3.cs" />
+    <Compile Include="Instance\Account\AccountStatus.cs" />
     <Compile Include="System\DB\GameDBDocEx.cs" />
     <Compile Include="System\DB\UserDBDocEx.cs" />
     <Compile Include="System\Synchronizer\AccountSynchronizer.cs" />
     <Compile Include="System\Synchronizer\ClientPeerSynchronizer.cs" />
     <Compile Include="Model\GameServer.cs" />
     <Compile Include="System\DB\GameDBDoc.cs" />
-    <Compile Include="Instance\Client\Handler\CommandHandlerFactory.cs" />
+    <Compile Include="Client\Handler\CommandHandlerFactory.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="System\AccessToken.cs" />
     <Compile Include="System\Excpetion\CommandHandleException.cs" />
-    <Compile Include="Instance\Client\Handler\Command\CommandHandler.cs" />
-    <Compile Include="Instance\Client\Handler\Command\Login\LoginCommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\CommandHandler.cs" />
+    <Compile Include="Client\Handler\Command\Login\LoginCommandHandler.cs" />
     <Compile Include="System\ClientPeer.cs" />
     <Compile Include="System\DB\UserDBDoc.cs" />
     <Compile Include="System\AppConfig.cs" />
@@ -116,8 +130,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Instance\Client\Handler\Command\Login\InGame\" />
-    <Folder Include="Instance\Client\Handler\Event\" />
+    <Folder Include="Client\Handler\Event\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

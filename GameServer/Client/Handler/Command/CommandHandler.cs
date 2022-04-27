@@ -90,6 +90,9 @@ namespace GameServer
 		{
 			try
 			{
+				if (!isValid)
+					throw new Exception("Invalid Handler.");
+
 				//
 				// 비동기
 				//
@@ -136,7 +139,8 @@ namespace GameServer
 
 		protected virtual void OnWorkSuccess()
 		{
-
+			if (!isValid)
+				throw new Exception("Invalid Handler.");
 		}
 
 		protected virtual void OnWorkFail(Exception ex)

@@ -8,6 +8,7 @@ namespace ServerFramework
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
+		private object m_syncObject = new object();
 		private Queue<ISFWork> m_works = new Queue<ISFWork>();
 
 		private ManualResetEvent m_nextSignal = new ManualResetEvent(false);
@@ -41,12 +42,15 @@ namespace ServerFramework
 			if (!m_bRunning)
 				return;
 
-			m_works.Enqueue(work);
-
-			if (m_works.Count == 1)
+			lock (m_syncObject)
 			{
-				m_endSignal.Reset();
-				m_nextSignal.Set();
+				m_works.Enqueue(work);
+
+				if (m_works.Count == 1)
+				{
+					m_endSignal.Reset();
+					m_nextSignal.Set();
+				}
 			}
 		}
 
@@ -62,16 +66,19 @@ namespace ServerFramework
 
 		private void RunWork()
 		{
-			ISFWork work = m_works.Peek();
-
-			work.Run();
-
-			m_works.Dequeue();
-
-			if (m_works.Count == 0)
+			lock (m_syncObject)
 			{
-				m_nextSignal.Reset();
-				m_endSignal.Set();
+				ISFWork work = m_works.Peek();
+
+				work.Run();
+
+				m_works.Dequeue();
+
+				if (m_works.Count == 0)
+				{
+					m_nextSignal.Reset();
+					m_endSignal.Set();
+				}
 			}
 		}
 

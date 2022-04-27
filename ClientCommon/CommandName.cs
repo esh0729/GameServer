@@ -15,6 +15,13 @@
         // 영웅
         //
 
-        HeroCreate
+        HeroCreate,
+        HeroLogin,
+        HeroLogout,
+        HeroInitEnter,
+
+        HeroMoveStart,
+        HeroMove,
+        HeroMoveEnd
     }
 }

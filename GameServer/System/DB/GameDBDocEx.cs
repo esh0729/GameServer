@@ -39,5 +39,22 @@ namespace GameServer
 
 			return Convert.ToInt32(sc.Parameters["ReturnValue"].Value);
 		}
+
+		public static SqlCommand CSC_HeroLogout(Hero hero)
+		{
+			return GameDBDoc.CSC_HeroLogout(
+				hero.id,
+				hero.lastLogoutTime,
+				hero.lastContinentId,
+				hero.lastPosition.x,
+				hero.lastPosition.y,
+				hero.lastPosition.z,
+				hero.lastYRotation,
+				hero.previousContinentId,
+				hero.previousPosition.x,
+				hero.previousPosition.y,
+				hero.previousPosition.z,
+				hero.previousYRotation);
+		}
 	}
 }

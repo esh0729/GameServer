@@ -19,5 +19,13 @@ namespace GameServer
 
 			return dbWork;
 		}
+
+		public static SFSqlWork CreateHeroGameDBWork(Guid heroId)
+		{
+			SFSqlWork dbWork = new SFSqlWork(Util.OpenGameDBConnection());
+			dbWork.AddSyncWork(SyncWorkUtil.CreateHeroSyncWork(heroId));
+
+			return dbWork;
+		}
 	}
 }

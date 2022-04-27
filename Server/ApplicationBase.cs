@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -17,18 +18,31 @@ namespace Server
 
 		private object m_syncObject = new object();
 
+		private int m_nConnectionTimeoutInternal = 0;
+
 		private bool m_bAccpetAwaiting = false;
+		private bool m_bDiposed = false;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Properties
+
+		public int connectionTimeoutInterval
+		{
+			get { return m_nConnectionTimeoutInternal; }
+		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		protected void Start(int nPort, int nBackLogCount)
+		protected void Start(int nPort, int nBackLogCount, int nConnectionTimeoutInterval = 10000)
 		{
 			m_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, nPort);
 
 			m_serverSocket.Bind(ipEndPoint);
 			m_serverSocket.Listen(nBackLogCount);
+
+			m_nConnectionTimeoutInternal = nConnectionTimeoutInterval;
 		}
 
 		protected abstract PeerBase CreatePeer(PeerInit peerInit);
@@ -72,6 +86,9 @@ namespace Server
 
 		public void Service()
 		{
+			if (m_bDiposed)
+				return;
+
 			if (!m_bAccpetAwaiting)
 				Accpet();
 
@@ -98,6 +115,11 @@ namespace Server
 
 		public void Dispose()
 		{
+			if (m_bDiposed)
+				return;
+
+			m_bDiposed = true;
+
 			lock (m_syncObject)
 			{
 				foreach (PeerBase peer in m_peers.Values.ToArray())
@@ -106,8 +128,31 @@ namespace Server
 				}
 			}
 
-			m_serverSocket.Disconnect(true);
 			m_serverSocket.Close();
+
+			//
+			//
+			//
+
+			OnTearDown();
 		}
+
+		private void CloseConnection()
+		{
+			Socket closeSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 7000);
+
+			closeSocket.Connect(ipEndPoint);
+		}
+
+		private void CloseSend()
+		{
+			byte[] buffer = new byte[] { };
+
+			m_serverSocket.Send(buffer);
+			m_serverSocket.Receive(buffer);
+		}
+
+		protected abstract void OnTearDown();
 	}
 }

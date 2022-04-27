@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
+using ServerFramework;
+
 namespace GameServer
 {
 	public class Resource
@@ -49,6 +51,11 @@ namespace GameServer
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
+		public int startContinentId
+		{
+			get { return m_nStartContinentId; }
+		}
+
 		public float sectorCellSize
 		{
 			get { return m_fSectorCellSize; }
@@ -57,6 +64,15 @@ namespace GameServer
 		public int heroCreationLimitCount
 		{
 			get { return m_nHeroCreationLimitCount; }
+		}
+
+		//
+		// 대륙
+		//
+
+		public Dictionary<int, Continent> continents
+		{
+			get { return m_continents; }
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +143,23 @@ namespace GameServer
 
 				m_characters.Add(character.id, character);
 			}
+		}
+
+		//
+		//
+		//
+
+		public Vector3 SelectStartPosition()
+		{
+			return new Vector3(
+				SFRandom.NextFloat(m_startPosition.x - m_fStartRadius, m_startPosition.x + m_fStartRadius),
+				m_startPosition.y,
+				SFRandom.NextFloat(m_startPosition.z - m_fStartRadius, m_startPosition.z + m_fStartRadius));
+		}
+
+		public float SelectStartYRotation()
+		{
+			return m_nStartYRotationType == kStartYRotationType_Fiexed ? m_fStartYRotation : SFRandom.NextFloat(m_fStartYRotation);
 		}
 
 		//

@@ -34,6 +34,13 @@ namespace GameServer
 			//
 
 			AddCommandHandler<HeroCreateCommandHandler>(CommandName.HeroCreate);
+			AddCommandHandler<HeroLoginCommandHandler>(CommandName.HeroLogin);
+			AddCommandHandler<HeroLogoutCommandHandler>(CommandName.HeroLogout);
+			AddCommandHandler<HeroInitEnterCommandHandler>(CommandName.HeroInitEnter);
+
+			AddCommandHandler<HeroMoveStartCommandHandler>(CommandName.HeroMoveStart);
+			AddCommandHandler<HeroMoveCommandHandler>(CommandName.HeroMove);
+			AddCommandHandler<HeroMoveEndCommandHandler>(CommandName.HeroMoveEnd);
 		}
 	}
 }

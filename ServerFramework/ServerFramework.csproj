@@ -48,6 +48,7 @@
     <Compile Include="Parameter\ServerEventParameter.cs" />
     <Compile Include="SFPeerImpl.cs" />
     <Compile Include="RequestType.cs" />
+    <Compile Include="SFRandom.cs" />
     <Compile Include="Work\ISFWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Work\Sql\SFSqlWork.cs" />

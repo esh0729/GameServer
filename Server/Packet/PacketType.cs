@@ -2,7 +2,8 @@
 {
 	public enum PacketType : byte
 	{
-		OperationRequest = 1,
+		PingCheck = 0,
+		OperationRequest,
 		EventData,
 		OperationResponse
 	}

@@ -29,7 +29,7 @@ namespace GameServer
 			get { return m_position; }
 		}
 
-		public float YRotation
+		public float yRotation
 		{
 			get { return m_fYRotation; }
 		}
@@ -60,7 +60,15 @@ namespace GameServer
 
 		public void SetSector(Sector sector)
 		{
+			Sector oldSector = m_sector;
 			m_sector = sector;
+
+			OnSetSector(oldSector);
+		}
+
+		protected virtual void OnSetSector(Sector oldSector)
+		{
+
 		}
 	}
 }

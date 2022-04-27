@@ -19,6 +19,8 @@ namespace GameServer
 
 		private Hero m_currentHero = null;
 
+		private AccountStatus m_status = AccountStatus.Logout;
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
@@ -64,15 +66,27 @@ namespace GameServer
 			set { m_currentHero = value; }
 		}
 
+		public AccountStatus status
+		{
+			get { return m_status; }
+		}
+
+		public bool isLoggedIn
+		{
+			get { return m_status == AccountStatus.Login; }
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		public void Init(Guid userId, DateTimeOffset time)
+		public void Init(Guid accountId, Guid userId, DateTimeOffset time)
 		{
-			m_id = Guid.NewGuid();
+			m_id = accountId;
 
 			m_userId = userId;
 			m_regTime = time;
+
+			m_status = AccountStatus.Login;
 		}
 
 		public void Init(DataRow dr)
@@ -84,10 +98,17 @@ namespace GameServer
 
 			m_userId = DBUtil.ToGuid(dr["userId"]);
 			m_regTime = DBUtil.ToDateTimeOffset(dr["regTime"]);
+
+			m_status = AccountStatus.Login;
 		}
 
 		public void Logout()
 		{
+			if (!isLoggedIn)
+				return;
+
+			m_status = AccountStatus.Logout;
+
 			if (m_currentHero != null)
 				m_currentHero.Logout();
 

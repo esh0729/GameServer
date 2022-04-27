@@ -12,8 +12,6 @@ namespace GameServer
 
 		private Account m_account = null;
 
-		private bool m_bDisposed = false;
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
@@ -36,28 +34,18 @@ namespace GameServer
 			set { m_account = value; }
 		}
 
-		public bool disposed
-		{
-			get { return m_bDisposed; }
-		}
-
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
 		protected override void OnDisconnect()
 		{
-			if (m_bDisposed)
-				return;
-
-			m_bDisposed = true;
-
 			if (m_account != null)
 			{
 				AccountSynchronizer synchronizer = new AccountSynchronizer(m_account, new SFAction(m_account.Logout), true);
 				synchronizer.Start();
 			}
 
-			Server.instance.RemovePeer(m_id);
+			Server.instance.RemovePeer(id);
 		}
 	}
 }

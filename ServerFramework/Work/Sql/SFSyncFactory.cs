@@ -17,6 +17,12 @@ namespace ServerFramework
 
 		private static Dictionary<object, SFSync> m_sUserSyncFactories = new Dictionary<object, SFSync>();
 
+		//
+		// Hero
+		//
+
+		private static Dictionary<object, SFSync> m_sHeroSyncFactories = new Dictionary<object, SFSync>();
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Static member functions
 
@@ -27,6 +33,10 @@ namespace ServerFramework
 			switch (type)
 			{
 				case SyncWorkType.User: sync = GetOrCreateUserSync(id); break;
+				case SyncWorkType.Hero: sync = GetOrCreateHeroSync(id); break;
+
+				default:
+					throw new Exception("Not exist type.");
 			}
 
 			return sync;
@@ -44,6 +54,23 @@ namespace ServerFramework
 			{
 				sync = new SFSync(id);
 				m_sUserSyncFactories.Add(id, sync);
+			}
+
+			return sync;
+		}
+
+		//
+		// Hero
+		//
+
+		private static SFSync GetOrCreateHeroSync(object id)
+		{
+			SFSync sync = null;
+
+			if (!m_sHeroSyncFactories.TryGetValue(id, out sync))
+			{
+				sync = new SFSync(id);
+				m_sHeroSyncFactories.Add(id, sync);
 			}
 
 			return sync;

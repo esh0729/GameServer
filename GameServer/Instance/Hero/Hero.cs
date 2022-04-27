@@ -31,12 +31,33 @@ namespace GameServer
 		private DateTimeOffset m_currentUpdateTime = DateTimeOffset.MinValue;
 		private DateTimeOffset m_prevUpdateTime = DateTimeOffset.MinValue;
 
+		private DateTimeOffset m_regTime = DateTimeOffset.MinValue;
+
+		private HeroStatus m_status = HeroStatus.Logout;
+
+		private DateTimeOffset m_lastLoginTime = DateTimeOffset.MinValue;
+		private DateTimeOffset m_lastLogoutTime = DateTimeOffset.MinValue;
+
+		private Continent m_lastContinent = null;
+		private Vector3 m_lastPosition = Vector3.zero;
+		private float m_fLastYRotation = 0f;
+
+		private Continent m_previousContinent = null;
+		private Vector3 m_previousPosition = Vector3.zero;
+		private float m_fPreviousYRotation = 0f;
+
+		private EntranceParam m_entranceParam = null;
+
+		private bool m_bIsInitEntered = false;
+
+		private bool m_bMoving = false;
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
 		public Hero(Account account)
 		{
-			if (m_account == null)
+			if (account == null)
 				throw new ArgumentNullException("account");
 
 			m_account = account;
@@ -75,24 +96,170 @@ namespace GameServer
 			get { return m_character; }
 		}
 
+		public DateTimeOffset lastLoginTime
+		{
+			get { return m_lastLoginTime; }
+		}
+
+		public DateTimeOffset lastLogoutTime
+		{
+			get { return m_lastLogoutTime; }
+		}
+
+		public DateTimeOffset regTime
+		{
+			get { return m_regTime; }
+		}
+
+		public bool isLoggedIn
+		{
+			get { return m_status == HeroStatus.Login; }
+		}
+
+		public Continent lastContinent
+		{
+			get { return m_lastContinent; }
+		}
+
+		public int lastContinentId
+		{
+			get { return m_lastContinent != null ? m_lastContinent.id : 0; }
+		}
+
+		public Vector3 lastPosition
+		{
+			get { return m_lastPosition; }
+		}
+
+		public float lastYRotation
+		{
+			get { return m_fLastYRotation; }
+		}
+
+		public Continent previousContinent
+		{
+			get { return m_previousContinent; }
+		}
+
+		public int previousContinentId
+		{
+			get { return m_previousContinent != null ? m_previousContinent.id : 0; }
+		}
+
+		public Vector3 previousPosition
+		{
+			get { return m_previousPosition; }
+		}
+
+		public float previousYRotation
+		{
+			get { return m_fPreviousYRotation; }
+		}
+
+		public EntranceParam entranceParam
+		{
+			get { return m_entranceParam; }
+		}
+
+		public bool isInitEntered
+		{
+			get { return m_bIsInitEntered; }
+			set { m_bIsInitEntered = value; }
+		}
+
+		public bool moving
+		{
+			get { return m_bMoving; }
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		public void CompleteLogin(DataRow dr)
+		public void CompleteLogin(
+			DateTimeOffset time,
+
+			DataRow drHero)
 		{
-			if (dr == null)
+			if (drHero == null)
 				throw new ArgumentNullException("dr");
-
-			m_id = DBUtil.ToGuid(dr["heroId"]);
-
-			//
-			//
-			//
 
 			m_worker = new SFWorker();
 			m_worker.Start();
 
+			//
+			//
+			//
+
+			CompleteLogin_Base(time, drHero);
+
+			//
+			//
+			//
+
+			m_account.currentHero = this;
 			m_timer = new Timer(Update, null, kUpdateTimeTicks, kUpdateTimeTicks);
+			m_status = HeroStatus.Login;
+		}
+
+		private void CompleteLogin_Base(DateTimeOffset time, DataRow drHero)
+		{
+			m_id = DBUtil.ToGuid(drHero["heroId"]);
+			m_sName = Convert.ToString(drHero["name"]);
+
+			int nCharacterId = Convert.ToInt32(drHero["characterId"]);
+			m_character = Resource.instance.GetCharacter(nCharacterId);
+			if (m_character == null)
+				throw new Exception("캐릭터가 존재하지 않습니다. nCharacterId = " + nCharacterId);
+
+			m_lastLoginTime = time;
+			m_lastLogoutTime = DBUtil.ToDateTimeOffset(drHero["lastLogoutTime"]);
+
+			m_regTime = DBUtil.ToDateTimeOffset(drHero["regTime"]);
+
+			int nLastContinentId = Convert.ToInt32(drHero["lastContinentId"]);
+			m_lastContinent = Resource.instance.GetContinent(nLastContinentId);
+			m_lastPosition.x = Convert.ToSingle(drHero["lastXPosition"]);
+			m_lastPosition.y = Convert.ToSingle(drHero["lastYPosition"]);
+			m_lastPosition.z = Convert.ToSingle(drHero["lastZPosition"]);
+			m_fLastYRotation = Convert.ToSingle(drHero["lastYRotation"]);
+
+			int nPreviousContinentId = Convert.ToInt32(drHero["previousContinentId"]);
+			m_previousContinent = Resource.instance.GetContinent(nPreviousContinentId);
+			m_previousPosition.x = Convert.ToSingle(drHero["previousXPosition"]);
+			m_previousPosition.y = Convert.ToSingle(drHero["previousYPosition"]);
+			m_previousPosition.z = Convert.ToSingle(drHero["previousZPosition"]);
+			m_fPreviousYRotation = Convert.ToSingle(drHero["previousYRotation"]);
+
+			Continent enterContinent = null;
+			Vector3 enterPosition = Vector3.zero;
+			float fEnterYRotation = 0f;
+
+			if (m_lastContinent != null)
+			{
+				enterContinent = m_lastContinent;
+				enterPosition = m_lastPosition;
+				fEnterYRotation = m_fLastYRotation;
+			}
+			else
+			{
+				if (m_previousContinent != null)
+				{
+					enterContinent = m_previousContinent;
+					enterPosition = m_previousPosition;
+					fEnterYRotation = m_fPreviousYRotation;
+				}
+				else
+				{
+					enterContinent = Resource.instance.GetContinent(Resource.instance.startContinentId);
+					enterPosition = Resource.instance.SelectStartPosition();
+					fEnterYRotation = Resource.instance.SelectStartYRotation();
+
+					Console.WriteLine("enterPosition = " + enterPosition + ", fEnterYRotation = " + fEnterYRotation);
+				}
+			}
+
+			HeroInitEnterParam param = new HeroInitEnterParam(enterContinent, enterPosition, fEnterYRotation);
+			SetEntranceParam(param);
 		}
 
 		private void Update(object state)
@@ -140,21 +307,137 @@ namespace GameServer
 		//
 		//
 
+		public void SetLastLocation()
+		{
+			ContinentInstance continentInstance = m_currentPlace as ContinentInstance;
+
+			if (continentInstance != null)
+			{
+				m_lastContinent = continentInstance.continent;
+				m_lastPosition = m_position;
+				m_fLastYRotation = m_fYRotation;
+			}
+			else
+			{
+				m_lastContinent = null;
+				m_lastPosition = Vector3.zero;
+				m_fLastYRotation = 0f;
+			}
+		}
+
+		public void SetPreviousContinent()
+		{
+			ContinentInstance continentInstance = m_currentPlace as ContinentInstance;
+
+			if (continentInstance == null)
+				return;
+
+			m_previousContinent = continentInstance.continent;
+			m_previousPosition = m_position;
+			m_fPreviousYRotation = m_fYRotation;
+		}
+
+		public void SetEntranceParam(EntranceParam param)
+		{
+			m_entranceParam = param;
+		}
+
+		//
+		//
+		//
+
+		protected override void OnSetSector(Sector oldSector)
+		{
+			base.OnSetSector(oldSector);
+
+			if (oldSector != null)
+				oldSector.RemoveHero(m_id);
+
+			if (m_sector != null)
+				m_sector.AddHero(this);
+		}
+
+		//
+		//
+		//
+
+		public void StartMove()
+		{
+			if (m_bMoving)
+				return;
+
+			m_bMoving = true;
+		}
+
+		public void EndMove()
+		{
+			if (!m_bMoving)
+				return;
+
+			m_bMoving = false;
+		}
+
+		//
+		//
+		//
+
 		public void Logout()
 		{
+			if (!isLoggedIn)
+				return;
+
+			m_status = HeroStatus.Logout;
+
 			m_timer.Dispose();
 
-			//
-			//
-			//
+			{
+				m_lastLogoutTime = DateTimeUtil.currentTime;
 
-			m_account.currentHero = null;
+				//
+				// 마지막위치정보
+				//
+
+				if (m_bIsInitEntered)
+					SetLastLocation();
+
+				//
+				// 장소
+				//
+
+				if (m_currentPlace != null)
+					m_currentPlace.Exit(this, true, null);
+
+				//
+				// DB 저장
+				//
+
+				Logout_SaveToDB();
+			}
 
 			//
 			//
 			//
 
 			m_worker.Stop();
+			m_account.currentHero = null;
+			Cache.instance.RemoveHero(m_id);
+		}
+
+		private void Logout_SaveToDB()
+		{
+			SFSqlWork dbWork = SqlWorkUtil.CreateHeroGameDBWork(m_id);
+
+			//
+			// 영웅 로그아웃
+			//
+
+			dbWork.AddCommand(GameDBDocEx.CSC_HeroLogout(this));
+
+			//
+			//
+			//
+
+			dbWork.Schedule();
 		}
 
 		//
@@ -171,6 +454,21 @@ namespace GameServer
 			inst.yRotation = m_fYRotation;
 
 			return inst;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Static member functions
+
+		public static List<PDHero> ToPDHeroes(IEnumerable<Hero> heroes)
+		{
+			List<PDHero> results = new List<PDHero>();
+
+			foreach (Hero hero in heroes)
+			{
+				results.Add(hero.ToPDHero());
+			}
+
+			return results;
 		}
 	}
 }

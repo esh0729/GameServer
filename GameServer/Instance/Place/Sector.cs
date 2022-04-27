@@ -77,6 +77,58 @@ namespace GameServer
 			return m_heroes.TryGetValue(heroId, out value) ? value : null;
 		}
 
+		public List<Hero> GetHeroes(Guid heroIdToExclude)
+		{
+			List<Hero> heroes = new List<Hero>();
+
+			foreach (Hero hero in m_heroes.Values)
+			{
+				if (hero.id == heroIdToExclude)
+					continue;
+
+				heroes.Add(hero);
+			}
+
+			return heroes;
+		}
+
+		public void GetHeroes(List<Hero> heroes, Guid heroIdToExclude)
+		{
+			foreach (Hero hero in m_heroes.Values)
+			{
+				if (hero.id == heroIdToExclude)
+					continue;
+
+				heroes.Add(hero);
+			}
+		}
+
+		public List<Guid> GetHeroIds(Guid heroIdToExclude)
+		{
+			List<Guid> heroIds = new List<Guid>();
+
+			foreach (Hero hero in m_heroes.Values)
+			{
+				if (hero.id == heroIdToExclude)
+					continue;
+
+				heroIds.Add(hero.id);
+			}
+
+			return heroIds;
+		}
+
+		public void GetHeroIds(List<Guid> heroIds, Guid heroIdToExclude)
+		{
+			foreach (Hero hero in m_heroes.Values)
+			{
+				if (hero.id == heroIdToExclude)
+					continue;
+
+				heroIds.Add(hero.id);
+			}
+		}
+
 		public List<ClientPeer> GetClientPeers(Guid heroIdToExclude)
 		{
 			List<ClientPeer> clientPeers = new List<ClientPeer>();

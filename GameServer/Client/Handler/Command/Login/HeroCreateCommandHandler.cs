@@ -66,29 +66,44 @@ namespace GameServer
 			try
 			{
 				//
-				// UserDB
+				// UserDB 검사
 				//
 
 				userConn = Util.OpenUserDBConnection();
 				userTrans = userConn.BeginTransaction();
 
+				/*
 				if (UserDBDoc.HeroName(userConn, userTrans, m_sName) != null)
 					throw new CommandHandleException(kResult_ExistHeroName, "이미 존재하는 영웅이름입니다. m_sName = " + m_sName);
+				*/
+
+				//
+				// GameDB 검사
+				//
+
+				gameConn = Util.OpenGameDBConnection();
+				gameTrans = gameConn.BeginTransaction();
+
+				if (GameDBDoc.HeroCount(gameConn, gameTrans, m_myAccount.id) >= Resource.instance.heroCreationLimitCount)
+					throw new CommandHandleException(kResult_Error, "영웅생성 제한수를 초과하였습니다.");
+
+				//
+				// UserDB
+				//
 
 				m_heroId = Guid.NewGuid();
 
 				if (UserDBDocEx.AddUserHero(userConn, userTrans, m_myAccount.userId, m_heroId, m_sName, m_character.id) != 0)
 					throw new CommandHandleException(kResult_Error, "사용자영웅 등록 실패.");
 
+				/*
 				if (UserDBDocEx.AddHeroName(userConn, userTrans, m_sName, m_heroId) != 0)
 					throw new CommandHandleException(kResult_Error, "영웅이름 등록 실패.");
+				*/
 
 				//
 				// GameDB
 				//
-
-				gameConn = Util.OpenGameDBConnection();
-				gameTrans = gameConn.BeginTransaction();
 
 				if (GameDBDocEx.AddHero(gameConn, gameTrans, m_myAccount.id, m_heroId, m_sName, m_character.id, m_currentTime) != 0)
 					throw new CommandHandleException(kResult_Error, "영웅 등록 실패.");
@@ -126,6 +141,8 @@ namespace GameServer
 		protected override void OnWorkSuccess()
 		{
 			base.OnWorkSuccess();
+
+			ProcessCompleted();
 		}
 
 		private void ProcessCompleted()

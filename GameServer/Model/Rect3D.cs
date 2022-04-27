@@ -35,9 +35,9 @@ namespace GameServer
 
 		public bool Contains(Vector3 position)
 		{
-			return x >= position.x && x + xSize < position.x
-				&& y >= position.y && y + ySize < position.y
-				&& z >= position.z && z + zSize < position.z;
+			return x <= position.x && x + xSize > position.x
+				&& y <= position.y && y + ySize > position.y
+				&& z <= position.z && z + zSize > position.z;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

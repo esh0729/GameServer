@@ -18,7 +18,7 @@ namespace GameServer
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		protected Guid m_id = Guid.Empty;
+		protected Guid m_instanceId = Guid.Empty;
 		protected object m_syncObject = new object();
 
 		protected SFWorker m_worker = null;
@@ -36,16 +36,23 @@ namespace GameServer
 
 		public Place()
 		{
-			m_id = Guid.NewGuid();
+			m_instanceId = Guid.NewGuid();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
+		public Guid instanceId
+		{
+			get { return m_instanceId; }
+		}
+
 		public object syncObject
 		{
 			get { return m_syncObject; }
 		}
+
+		public abstract PlaceType type { get; }
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
@@ -60,6 +67,9 @@ namespace GameServer
 
 		private void Update(object state)
 		{
+			if (m_bDisposed)
+				return;
+
 			AddWork(new SFAction(OnUpdate), false);
 		}
 
@@ -122,6 +132,8 @@ namespace GameServer
 		{
 			if (hero == null)
 				throw new ArgumentNullException("hero");
+
+			m_heroes.Add(hero.id, hero);
 		}
 
 		private bool RemoveHero(Guid heroId)
@@ -143,7 +155,7 @@ namespace GameServer
 		{
 		}
 
-		public void Exit(Hero hero)
+		public void Exit(Hero hero, bool bIsLogout, EntranceParam entranceParam)
 		{
 			if (hero == null)
 				throw new ArgumentNullException("hero");
@@ -151,10 +163,10 @@ namespace GameServer
 			if (!RemoveHero(hero.id))
 				return;
 
-			OnHeroExit(hero);
+			OnHeroExit(hero, bIsLogout, entranceParam);
 		}
 
-		protected virtual void OnHeroExit(Hero hero)
+		protected virtual void OnHeroExit(Hero hero, bool bIsLogout, EntranceParam entranceParam)
 		{
 		}
 
@@ -189,7 +201,10 @@ namespace GameServer
 
 		protected virtual void OnDisposed()
 		{
+			m_timer.Dispose();
+			m_worker.Stop();
 
+			Cache.instance.RemovePlace(this);
 		}
 	}
 }

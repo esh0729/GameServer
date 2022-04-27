@@ -13,6 +13,15 @@
 		//
 
 		HeroEnter,
-		HeroExit
+		HeroExit,
+		HeroMove,
+
+		//
+		// 관심영역
+		//
+
+		InterestedAreaChanged,
+		HeroInterestedAreaEnter,
+		HeroInterestedAreaExit
 	}
 }

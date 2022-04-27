@@ -16,7 +16,10 @@ namespace GameServer
 		// Member variables
 
 		private AccessToken m_accessToken = null;
+
+		private Guid m_accountId = Guid.Empty;
 		private Account m_account = null;
+		private DataRow m_drAccount = null;
 
 		private DateTimeOffset m_currentTime = DateTimeOffset.MinValue;
 
@@ -101,25 +104,17 @@ namespace GameServer
 					// 계정 검사
 					//
 
-					DataRow drAccount = GameDBDoc.Account(gameConn, gameTrans, m_accessToken.userId);
+					m_drAccount = GameDBDoc.Account(gameConn, gameTrans, m_accessToken.userId);
 
-					if (drAccount != null)
+					if (m_drAccount == null)
 					{
-						Guid accountId = DBUtil.ToGuid(drAccount["accountId"]);
-
-						m_account = new Account(clientPeer);
-						m_account.Init(drAccount);
-					}
-					else
-					{
-						m_account = new Account(clientPeer);
-						m_account.Init(m_accessToken.userId, m_currentTime);
-
 						//
 						// 계정 등록
 						//
 
-						if (GameDBDocEx.AddAccount(gameConn, gameTrans, m_account.id, m_account.userId, m_account.regTime) != 0)
+						m_accountId = Guid.NewGuid();
+
+						if (GameDBDocEx.AddAccount(gameConn, gameTrans, m_accountId, m_accessToken.userId, m_currentTime) != 0)
 							throw new CommandHandleException(kResult_Error, "계정 등록에 실패 했습니다.");
 					}
 				}
@@ -157,7 +152,10 @@ namespace GameServer
 
 		private void CheckDuplicated()
 		{
-			Account loginedAccount = Cache.instance.GetAccount(m_account.id);
+			if (m_drAccount != null)
+				m_accountId = DBUtil.ToGuid(m_drAccount["accountId"]);
+
+			Account loginedAccount = Cache.instance.GetAccount(m_accountId);
 
 			if (loginedAccount != null)
 			{
@@ -183,6 +181,17 @@ namespace GameServer
 
 		private void ProcessCompleted()
 		{
+			if (m_drAccount != null)
+			{
+				m_account = new Account(clientPeer);
+				m_account.Init(m_drAccount);
+			}
+			else
+			{
+				m_account = new Account(clientPeer);
+				m_account.Init(m_accountId, m_accessToken.userId, m_currentTime);
+			}
+
 			Cache.instance.AddAccount(m_account);
 
 			clientPeer.account = m_account;

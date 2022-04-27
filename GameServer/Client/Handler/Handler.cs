@@ -28,6 +28,11 @@ namespace GameServer
 			get { return false; }
 		}
 
+		protected virtual bool isValid
+		{
+			get { return !m_peer.disposed; }
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 

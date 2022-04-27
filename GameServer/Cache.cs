@@ -34,6 +34,12 @@ namespace GameServer
 		private Dictionary<Guid, Account> m_accounts = new Dictionary<Guid, Account>();
 
 		//
+		// 영웅
+		//
+
+		private Dictionary<Guid, Hero> m_heroes = new Dictionary<Guid, Hero>();
+
+		//
 		// 장소
 		//
 
@@ -42,6 +48,8 @@ namespace GameServer
 		//
 		// 대륙
 		//
+
+		private Dictionary<int, ContinentInstance> m_continentInstances = new Dictionary<int, ContinentInstance>();
 
 		//
 		//
@@ -72,12 +80,41 @@ namespace GameServer
 		{
 			LogUtil.Info(GetType(), "Cache Init Started.");
 
+			//
+			//
+			//
+
 			m_worker = new SFWorker();
 			m_worker.Start();
 
 			m_timer = new Timer(Update, null, kUpdateTimeTicks, kUpdateTimeTicks);
 
+			//
+			// 대륙
+			//
+
+			InitContinent();
+
+			//
+			//
+			//
+
 			LogUtil.Info(GetType(), "Cache Init Completed.");
+		}
+
+		private void InitContinent()
+		{
+			foreach (Continent continent in Resource.instance.continents.Values)
+			{
+				ContinentInstance continentInstance = new ContinentInstance();
+				
+				lock (continentInstance.syncObject)
+				{
+					continentInstance.Init(continent);
+
+					AddPlace(continentInstance);
+				}
+			}
 		}
 
 		private void Update(object state)
@@ -124,6 +161,51 @@ namespace GameServer
 		}
 
 		//
+		// 장소
+		//
+
+		public void AddPlace(Place place)
+		{
+			m_places.Add(place.instanceId, place);
+
+			switch (place.type)
+			{
+				case PlaceType.Continent: AddContinentInstance((ContinentInstance)place); break;
+			}
+		}
+
+		public void RemovePlace(Place place)
+		{
+			m_places.Remove(place.instanceId);
+
+			switch (place.type)
+			{
+				case PlaceType.Continent: RemoveContinentInstance(((ContinentInstance)place).continent.id); break;
+			}
+		}
+
+		//
+		// 대륙
+		//
+
+		private void AddContinentInstance(ContinentInstance continentInstance)
+		{
+			m_continentInstances.Add(continentInstance.continent.id, continentInstance);
+		}
+
+		private void RemoveContinentInstance(int nContinentId)
+		{
+			m_continentInstances.Remove(nContinentId);
+		}
+
+		public ContinentInstance GetContinentInstance(int nContinentId)
+		{
+			ContinentInstance value;
+
+			return m_continentInstances.TryGetValue(nContinentId, out value) ? value : null;
+		}
+
+		//
 		// 계정
 		//
 
@@ -135,16 +217,40 @@ namespace GameServer
 			m_accounts.Add(account.id, account);
 		}
 
-		public Account GetAccount(Guid id)
+		public Account GetAccount(Guid accountId)
 		{
 			Account value;
 
-			return m_accounts.TryGetValue(id, out value) ? value : null;
+			return m_accounts.TryGetValue(accountId, out value) ? value : null;
 		}
 
-		public void RemoveAccount(Guid id)
+		public void RemoveAccount(Guid accountId)
 		{
-			m_accounts.Remove(id);
+			m_accounts.Remove(accountId);
+		}
+
+		//
+		// 영웅
+		//
+
+		public void AddHero(Hero hero)
+		{
+			if (hero == null)
+				throw new ArgumentNullException("hero");
+
+			m_heroes.Add(hero.id, hero);
+		}
+
+		public Hero GetHero(Guid heroId)
+		{
+			Hero value;
+
+			return m_heroes.TryGetValue(heroId, out value) ? value : null;
+		}
+
+		public void RemoveHero(Guid heroId)
+		{
+			m_heroes.Remove(heroId);
 		}
 
 		//
@@ -172,6 +278,15 @@ namespace GameServer
 			{
 				AccountSynchronizer accountSynchronizer = new AccountSynchronizer(account, new SFAction(account.Logout), false);
 				accountSynchronizer.Start();
+			}
+
+			//
+			// 장소 처리
+			//
+
+			foreach (Place place in m_places.Values.ToArray())
+			{
+				place.Dispose();
 			}
 
 			//

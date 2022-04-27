@@ -14,13 +14,15 @@ namespace Server
 		private ApplicationBase m_applicationBase = null;
 		private Socket m_socket = null;
 
+		private DateTime m_lastPingCheckTime = DateTime.MinValue;
+
 		private bool m_bAwaiting = false;
 
 		//
 		//
 		//
 
-		protected Guid m_id = Guid.Empty;
+		private Guid m_id = Guid.Empty;
 
 		private bool m_bDisposed = false;
 
@@ -36,6 +38,8 @@ namespace Server
 			m_socket = peerInit.socket;
 
 			m_id = Guid.NewGuid();
+
+			m_lastPingCheckTime = DateTime.Now;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +55,16 @@ namespace Server
 			get { return ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString(); }
 		}
 
+		public string port
+		{
+			get { return ((IPEndPoint)m_socket.RemoteEndPoint).Port.ToString(); }
+		}
+
+		public bool disposed
+		{
+			get { return m_bDisposed; }
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
@@ -58,34 +72,64 @@ namespace Server
 		{
 			if (!m_bAwaiting)
 				Receive();
+
+			if (m_applicationBase.connectionTimeoutInterval != 0 && (DateTime.Now - m_lastPingCheckTime).TotalMilliseconds > m_applicationBase.connectionTimeoutInterval)
+			{
+				Console.WriteLine(port + ", TimeOut");
+				Disconnect();
+			}
 		}
 
 		//
 		// Send
 		//
 
-		public void SendEvent(EventData eventData)
+		public bool SendEvent(EventData eventData)
 		{
-			FullPacket fullPacket = new FullPacket(PacketType.EventData, EventData.ToBytes(eventData));
-			byte[] buffer = FullPacket.ToBytes(fullPacket);
+			try
+			{
+				if (m_bDisposed)
+					return false;
 
-			List<byte> fullBuffer = new List<byte>();
-			fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
-			fullBuffer.AddRange(buffer);
+				FullPacket fullPacket = new FullPacket(PacketType.EventData, EventData.ToBytes(eventData));
+				byte[] buffer = FullPacket.ToBytes(fullPacket);
 
-			m_socket.Send(fullBuffer.ToArray());
+				List<byte> fullBuffer = new List<byte>();
+				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
+				fullBuffer.AddRange(buffer);
+
+				m_socket.Send(fullBuffer.ToArray());
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
 		}
 
-		public void SendResponse(OperationResponse operationResponse)
+		public bool SendResponse(OperationResponse operationResponse)
 		{
-			FullPacket fullPacket = new FullPacket(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
-			byte[] buffer = FullPacket.ToBytes(fullPacket);
+			try
+			{
+				if (m_bDisposed)
+					return false;
 
-			List<byte> fullBuffer = new List<byte>();
-			fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
-			fullBuffer.AddRange(buffer);
+				FullPacket fullPacket = new FullPacket(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
+				byte[] buffer = FullPacket.ToBytes(fullPacket);
 
-			m_socket.Send(fullBuffer.ToArray());
+				List<byte> fullBuffer = new List<byte>();
+				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
+				fullBuffer.AddRange(buffer);
+
+				m_socket.Send(fullBuffer.ToArray());
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		//
@@ -117,10 +161,8 @@ namespace Server
 
 					switch (fullPacket.type)
 					{
-						case PacketType.OperationRequest:
-							{
-								OnOperationRequest(OperationRequest.ToOperationRequest(fullPacket.packet));
-							}
+						case PacketType.PingCheck: OnPingCheck(); break;
+						case PacketType.OperationRequest: OnOperationRequest(OperationRequest.ToOperationRequest(fullPacket.packet));
 							break;
 
 						default:
@@ -143,7 +185,50 @@ namespace Server
 			}
 		}
 
+		private void OnPingCheck()
+		{
+			m_lastPingCheckTime = DateTime.Now;
+
+			ResponsePicgCheck();
+		}
+
+		private void ResponsePicgCheck()
+		{
+			if (m_bDisposed)
+				return;
+
+			List<byte> fullBuffer = new List<byte>();
+
+			FullPacket fullPacket = new FullPacket(PacketType.PingCheck, new byte[] { });
+			byte[] buffer = FullPacket.ToBytes(fullPacket);
+
+			fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
+			fullBuffer.AddRange(buffer);
+
+			m_socket.Send(fullBuffer.ToArray());
+		}
+
 		protected abstract void OnOperationRequest(OperationRequest request);
+
+		//
+		//
+		//
+
+		private void SendDisconnectResponse()
+		{
+			try
+			{
+				List<byte> fullBuffer = new List<byte>();
+
+				fullBuffer.Add(0);
+
+				m_socket.Send(fullBuffer.ToArray());
+			}
+			catch
+			{
+
+			}
+		}
 
 		//
 		//
@@ -155,6 +240,8 @@ namespace Server
 				return;
 
 			m_bDisposed = true;
+
+			SendDisconnectResponse();
 
 			m_socket.Disconnect(true);
 			m_socket.Close();

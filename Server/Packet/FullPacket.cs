@@ -20,9 +20,6 @@ namespace Server
 			if (packet == null)
 				throw new ArgumentNullException("packet");
 
-			if (packet.Length == 0)
-				throw new Exception("packet length is 0");
-
 			m_type = type;
 			m_nPacketLength = packet.Length;
 			m_packet = packet;

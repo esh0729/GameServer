@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 using Server;
 using ServerFramework;
@@ -51,6 +53,17 @@ namespace GameServer
 
 		public void Init()
 		{
+			int nMinWorkerThreads;
+			int nMaxWorkerThreads;
+			int nMinCompletionPortThreads;
+			int nMaxCompletionPortThreads;
+
+			ThreadPool.GetMinThreads(out nMinWorkerThreads, out nMinCompletionPortThreads);
+			ThreadPool.GetMaxThreads(out nMaxWorkerThreads, out nMaxCompletionPortThreads);
+
+			Console.WriteLine("nMinWorkerThreads = " + nMinWorkerThreads + ", nMaxWorkerThreads = " + nMaxWorkerThreads + ", nMinCompletionPortThreads = " + nMinCompletionPortThreads + ", nMaxCompletionPortThreads = " + nMaxCompletionPortThreads);
+			ThreadPool.SetMinThreads(nMaxWorkerThreads, nMinCompletionPortThreads);
+
 			//
 			// 명령핸들러팩토리
 			//
@@ -90,7 +103,10 @@ namespace GameServer
 			// 
 			//
 
-			Cache.instance.Init();
+			lock (Cache.instance.syncObject)
+			{
+				Cache.instance.Init();
+			}
 
 			//
 			// 서버 시작
@@ -149,6 +165,8 @@ namespace GameServer
 			ClientPeer clientPeer = new ClientPeer(peerInit);
 			m_clientPeers.Add(clientPeer.id, clientPeer);
 
+			Console.WriteLine("Address = " + clientPeer.ipAddress + ", Port = " + clientPeer.port + ", PeerCount = " + m_clientPeers.Count);
+
 			return clientPeer;
 		}
 
@@ -160,6 +178,36 @@ namespace GameServer
 		public void AddLogWork(ISFWork work)
 		{
 			m_logWorker.Add(work);
+		}
+
+		//
+		//
+		//
+
+		protected override void OnTearDown()
+		{
+			LogUtil.Info(GetType(), "OnTearDownStarted.");
+
+			//
+			//
+			//
+
+			lock (Cache.instance.syncObject)
+			{
+				Cache.instance.Dispose();
+			}
+
+			//
+			//
+			//
+
+			LogUtil.Info(GetType(), "OnTearDownFinished.");
+
+			//
+			//
+			//
+
+			m_logWorker.Stop();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +228,9 @@ namespace GameServer
 
 		public static void Main(string[] args)
 		{
+			handler = new ConsoleEventDelegate(ConsoleEventCallback);
+			SetConsoleCtrlHandler(handler, true);
+
 			Server server = Server.instance;
 
 			try
@@ -189,6 +240,8 @@ namespace GameServer
 			catch (Exception ex)
 			{
 				LogUtil.Error(typeof(Server), ex);
+				server.Dispose();
+				return;
 			}
 
 			while (true)
@@ -200,14 +253,25 @@ namespace GameServer
 				catch (Exception ex)
 				{
 					LogUtil.Error(typeof(Server), ex);
+
+					throw;
 				}
 			}
-
-			//
-			//
-			//
-
-			server.Dispose();
 		}
+
+		private static bool ConsoleEventCallback(int nEventType)
+		{
+			if (nEventType == 2)
+			{
+				Server.instance.Dispose();
+			}
+
+			return false;
+		}
+
+		private delegate bool ConsoleEventDelegate(int nEventType);
+		private static ConsoleEventDelegate handler;
+		[DllImport("kernel32.dll", SetLastError = true)]
+		private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool bAdd);
 	}
 }

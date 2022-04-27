@@ -8,6 +8,7 @@ namespace ServerFramework
 {
 	public enum SyncWorkType
 	{
-		User = 1
+		User = 1,
+		Hero
 	}
 }

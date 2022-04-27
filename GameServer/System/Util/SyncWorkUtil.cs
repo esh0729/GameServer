@@ -19,5 +19,13 @@ namespace GameServer
 
 			return syncWork;
 		}
+
+		public static SFSyncWork CreateHeroSyncWork(Guid heroId)
+		{
+			SFSyncWork syncWork = new SFSyncWork(heroId, SyncWorkType.Hero);
+			syncWork.Init();
+
+			return syncWork;
+		}
 	}
 }
