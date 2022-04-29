@@ -67,9 +67,6 @@ namespace GameServer
 
 		private void Update(object state)
 		{
-			if (m_bDisposed)
-				return;
-
 			AddWork(new SFAction(OnUpdate), false);
 		}
 
@@ -106,21 +103,16 @@ namespace GameServer
 		private void RunWork(ISFWork work, bool bRequiredGlobalLock)
 		{
 			if (bRequiredGlobalLock)
-			{
-				lock (Cache.instance.syncObject)
-				{
-					lock (m_syncObject)
-					{
-						work.Run();
-					}
-				}
-			}
+				Cache.instance.AddWork(new SFAction<ISFWork>(RunWork, work));
 			else
+				RunWork(work);
+		}
+
+		private void RunWork(ISFWork work)
+		{
+			lock (m_syncObject)
 			{
-				lock (m_syncObject)
-				{
-					work.Run();
-				}
+				work.Run();
 			}
 		}
 

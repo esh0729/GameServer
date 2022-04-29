@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ServerFramework
@@ -8,6 +9,8 @@ namespace ServerFramework
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
+		private int m_nType = 0;
+
 		private object m_syncObject = new object();
 		private Queue<ISFWork> m_works = new Queue<ISFWork>();
 
@@ -16,6 +19,16 @@ namespace ServerFramework
 
 		private bool m_bRunning = false;
 		private bool m_bDisposed = false;
+
+		private Dictionary<long, DateTime> m_delaies = new Dictionary<long, DateTime>();
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Properties
+
+		public SFWorker(int nType = 0)
+		{
+			m_nType = nType;
+		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
@@ -66,12 +79,12 @@ namespace ServerFramework
 
 		private void RunWork()
 		{
+			ISFWork work = m_works.Peek();
+
+			work.Run();
+
 			lock (m_syncObject)
 			{
-				ISFWork work = m_works.Peek();
-
-				work.Run();
-
 				m_works.Dequeue();
 
 				if (m_works.Count == 0)

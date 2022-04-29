@@ -41,6 +41,12 @@ namespace GameServer
 			AddCommandHandler<HeroMoveStartCommandHandler>(CommandName.HeroMoveStart);
 			AddCommandHandler<HeroMoveCommandHandler>(CommandName.HeroMove);
 			AddCommandHandler<HeroMoveEndCommandHandler>(CommandName.HeroMoveEnd);
+
+			//
+			// 행동
+			//
+
+			AddCommandHandler<ActionCommandHandler>(CommandName.Action);
 		}
 	}
 }

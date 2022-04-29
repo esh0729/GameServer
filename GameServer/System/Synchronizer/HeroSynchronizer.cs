@@ -35,50 +35,36 @@ namespace GameServer
 
 		public override void Start()
 		{
-			Place place = m_hero.currentPlace;
-
 			if (m_bRequiredGlobalLock)
 			{
 				lock (Cache.instance.syncObject)
 				{
+					Place place = m_hero.currentPlace;
+
 					if (place != null)
 					{
 						lock (place.syncObject)
 						{
-							lock (syncObject)
-							{
-								m_work.Run();
-							}
+							RunWork();
 						}
 					}
 					else
-					{
-						lock (syncObject)
-						{
-							m_work.Run();
-						}
-					}
+						RunWork();
 				}
 			}
 			else
 			{
+				Place place = m_hero.currentPlace;
+
 				if (place != null)
 				{
 					lock (place.syncObject)
 					{
-						lock (syncObject)
-						{
-							m_work.Run();
-						}
+						RunWork();
 					}
 				}
 				else
-				{
-					lock (syncObject)
-					{
-						m_work.Run();
-					}
-				}
+					RunWork();
 			}
 		}
 	}

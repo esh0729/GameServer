@@ -13,12 +13,30 @@ namespace ServerFramework
 
 		protected SFPeerImpl m_peer = null;
 
+		private bool m_bLogged = false;
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
 		public SFPeerImpl peer
 		{
 			get { return m_peer; }
+		}
+
+		public string functionName
+		{
+			get { return "SFHandler"; }
+		}
+
+		public DateTime queuingTime
+		{
+			get { return DateTime.Now; }
+		}
+
+		public bool logged
+		{
+			get { return m_bLogged; }
+			set { m_bLogged = value; }
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

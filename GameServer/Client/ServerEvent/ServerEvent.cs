@@ -87,6 +87,17 @@ namespace GameServer
 			Send(ServerEventName.HeroMove, body, clientPeers);
 		}
 
+		public static void SendHeroActionStarted(IEnumerable<ClientPeer> clientPeers, Guid heroId, int nActionId, PDVector3 position, float fYRotation)
+		{
+			SEBHeroActionStartedEventBody body = new SEBHeroActionStartedEventBody();
+			body.heroId = heroId;
+			body.actionId = nActionId;
+			body.position = position;
+			body.yRotation = fYRotation;
+
+			Send(ServerEventName.HeroActionStarted, body, clientPeers);
+		}
+
 		//
 		// 관심영역
 		//

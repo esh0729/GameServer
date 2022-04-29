@@ -13,6 +13,8 @@ namespace Server
 
 		private ApplicationBase m_applicationBase = null;
 		private Socket m_socket = null;
+		private string m_sIPAddress = null;
+		private int m_nPort = 0;
 
 		private DateTime m_lastPingCheckTime = DateTime.MinValue;
 
@@ -36,6 +38,8 @@ namespace Server
 
 			m_applicationBase = peerInit.applicationBase;
 			m_socket = peerInit.socket;
+			m_sIPAddress = ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString();
+			m_nPort = ((IPEndPoint)m_socket.RemoteEndPoint).Port;
 
 			m_id = Guid.NewGuid();
 
@@ -52,12 +56,12 @@ namespace Server
 
 		public string ipAddress
 		{
-			get { return ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString(); }
+			get { return m_sIPAddress; }
 		}
 
-		public string port
+		public int port
 		{
-			get { return ((IPEndPoint)m_socket.RemoteEndPoint).Port.ToString(); }
+			get { return m_nPort; }
 		}
 
 		public bool disposed
@@ -70,6 +74,9 @@ namespace Server
 
 		public void Service()
 		{
+			if (m_bDisposed)
+				return;
+
 			if (!m_bAwaiting)
 				Receive();
 
@@ -138,6 +145,7 @@ namespace Server
 
 		protected virtual void OnReceiveError(Exception ex)
 		{
+			//Console.WriteLine(ex.ToString());
 		}
 
 		private async void Receive()
@@ -189,10 +197,10 @@ namespace Server
 		{
 			m_lastPingCheckTime = DateTime.Now;
 
-			ResponsePicgCheck();
+			ResponsePingCheck();
 		}
 
-		private void ResponsePicgCheck()
+		private void ResponsePingCheck()
 		{
 			if (m_bDisposed)
 				return;
@@ -226,7 +234,6 @@ namespace Server
 			}
 			catch
 			{
-
 			}
 		}
 
@@ -241,14 +248,24 @@ namespace Server
 
 			m_bDisposed = true;
 
-			SendDisconnectResponse();
+			try
+			{
+				SendDisconnectResponse();
 
-			m_socket.Disconnect(true);
-			m_socket.Close();
+				m_socket.Disconnect(true);
+			}
+			catch
+			{
 
-			m_applicationBase.RemovePeer(this);
+			}
+			finally
+			{
+				m_socket.Close();
 
-			OnDisconnect();
+				m_applicationBase.RemovePeer(this);
+
+				OnDisconnect();
+			}
 		}
 
 		protected abstract void OnDisconnect();

@@ -78,7 +78,7 @@ namespace GameServer
 
 		public void Init()
 		{
-			LogUtil.Info(GetType(), "Cache Init Started.");
+			LogUtil.System(GetType(), "Cache Init Started.");
 
 			//
 			//
@@ -99,7 +99,7 @@ namespace GameServer
 			//
 			//
 
-			LogUtil.Info(GetType(), "Cache Init Completed.");
+			LogUtil.System(GetType(), "Cache Init Completed.");
 		}
 
 		private void InitContinent()

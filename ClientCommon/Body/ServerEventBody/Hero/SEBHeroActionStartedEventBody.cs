@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ClientCommon
 {
-	public class PDHero : PacketData
+	public class SEBHeroActionStartedEventBody : ServerEventBody
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
 		public Guid heroId;
-		public string name;
-		public int characterId;
+		public int actionId;
 		public PDVector3 position;
 		public float yRotation;
-		public int actionId;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
@@ -25,11 +24,9 @@ namespace ClientCommon
 			base.Serialize(writer);
 
 			writer.Write(heroId);
-			writer.Write(name);
-			writer.Write(characterId);
+			writer.Write(actionId);
 			writer.Write(position);
 			writer.Write(yRotation);
-			writer.Write(actionId);
 		}
 
 		public override void Deserialize(PacketReader reader)
@@ -37,11 +34,9 @@ namespace ClientCommon
 			base.Deserialize(reader);
 
 			heroId = reader.ReadGuid();
-			name = reader.ReadString();
-			characterId = reader.ReadInt32();
+			actionId = reader.ReadInt32();
 			position = reader.ReadPDVector3();
 			yRotation = reader.ReadSingle();
-			actionId = reader.ReadInt32();
 		}
 	}
 }

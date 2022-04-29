@@ -39,8 +39,6 @@ namespace GameServer
 			// 이동
 			//
 
-			Console.WriteLine("HeroMoveEndCommandHandler, position = " + position + ", fYRotation = " + fYRotation);
-
 			InterestedAreaInfo info = currentPlace.MoveHero(m_myHero, position, fYRotation, false);
 
 			//

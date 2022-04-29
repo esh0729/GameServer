@@ -1,53 +1,49 @@
 ﻿using System;
-
-using Server;
-using ServerFramework;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
 
 namespace GameServer
 {
-	public class ClientPeer : PeerImpl
+	public class CharacterAction
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		private object m_syncObject = new object();
-
-		private Account m_account = null;
+		public Character m_character = null;
+		private int m_nId = 0;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
-		public ClientPeer(PeerInit peerInit)
-			: base(peerInit)
+		public CharacterAction(Character character)
 		{
+			m_character = character;
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
-		public object syncObject
+		public Character character
 		{
-			get { return m_syncObject; }
+			get { return m_character; }
 		}
 
-		public Account account
-		{ 
-			get { return m_account; }
-			set { m_account = value; }
+		public int id
+		{
+			get { return m_nId; }
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		protected override void OnDisconnect()
+		public void Set(DataRow dr)
 		{
-			if (m_account != null)
-			{
-				AccountSynchronizer synchronizer = new AccountSynchronizer(m_account, new SFAction(m_account.Logout), true);
-				synchronizer.Start();
-			}
+			if (dr == null)
+				throw new ArgumentNullException("dr");
 
-			Server.instance.RemoveClientPeer(this);
+			m_nId = Convert.ToInt32(dr["actionId"]);
 		}
 	}
 }

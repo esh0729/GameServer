@@ -1,4 +1,6 @@
-﻿namespace ServerFramework
+﻿using System;
+
+namespace ServerFramework
 {
     public interface ISFWork
     {

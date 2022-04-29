@@ -45,6 +45,7 @@
     <Compile Include="Body\ClientEventBody\ClientEventBody.cs" />
     <Compile Include="Body\CommandBody\CommandBody.cs" />
     <Compile Include="Body\CommandBody\Login\HeroCreateCommandBody.cs" />
+    <Compile Include="Body\CommandBody\Login\InGame\Action\ActionCommandBody.cs" />
     <Compile Include="Body\CommandBody\Login\InGame\HeroInitEnterCommandBody.cs" />
     <Compile Include="Body\CommandBody\Login\InGame\HeroLoginCommandBody.cs" />
     <Compile Include="Body\CommandBody\Login\InGame\HeroLogoutCommandBody.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Body\CommandBody\Login\LobbyInfoCommandBody.cs" />
     <Compile Include="Body\CommandBody\Login\LoginCommandBody.cs" />
     <Compile Include="Body\ServerEventBody\Account\SEBLoginDuplicatedEventBody.cs" />
+    <Compile Include="Body\ServerEventBody\Hero\SEBHeroActionStartedEventBody.cs" />
     <Compile Include="Body\ServerEventBody\Hero\SEBHeroEnterEventBody.cs" />
     <Compile Include="Body\ServerEventBody\Hero\SEBHeroExitEventBody.cs" />
     <Compile Include="Body\ServerEventBody\Hero\SEBHeroMoveEventBody.cs" />

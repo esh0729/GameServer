@@ -143,6 +143,26 @@ namespace GameServer
 
 				m_characters.Add(character.id, character);
 			}
+
+			//
+			// 캐릭터행동 목록
+			//
+
+			foreach (DataRow dr in UserDBDoc.CharacterActions(conn, null))
+			{
+				int nCharacterId = Convert.ToInt32(dr["characterId"]);
+				Character character = GetCharacter(nCharacterId);
+				if (character == null)
+				{
+					LogUtil.Warn(GetType(), "[캐릭터행동 목록] 캐릭터가 존재하지 않습니다. nCharacterId = " + nCharacterId);
+					continue;
+				}
+
+				CharacterAction action = new CharacterAction(character);
+				action.Set(dr);
+
+				character.AddAction(action);
+			}
 		}
 
 		//

@@ -15,6 +15,12 @@ namespace GameServer
 
 		private float m_fMoveSpeed = 0f;
 
+		//
+		// 행동
+		//
+
+		private Dictionary<int,CharacterAction> m_actions = new Dictionary<int, CharacterAction>();
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
@@ -39,6 +45,25 @@ namespace GameServer
 			m_nId = Convert.ToInt32(dr["characterId"]);
 
 			m_fMoveSpeed = Convert.ToSingle(dr["moveSpeed"]);
+		}
+
+		//
+		// 행동
+		//
+
+		public void AddAction(CharacterAction action)
+		{
+			if (action == null)
+				throw new ArgumentNullException("action");
+
+			m_actions.Add(action.id, action);
+		}
+
+		public CharacterAction GetAction(int nId)
+		{
+			CharacterAction value;
+
+			return m_actions.TryGetValue(nId, out value) ? value : null;
 		}
 	}
 }

@@ -44,19 +44,11 @@ namespace GameServer
 				{
 					lock (Cache.instance.syncObject)
 					{
-						lock (syncObject)
-						{
-							m_work.Run();
-						}
+						RunWork();
 					}
 				}
 				else
-				{
-					lock (syncObject)
-					{
-						m_work.Run();
-					}
-				}
+					RunWork();
 			}
 		}
 	}

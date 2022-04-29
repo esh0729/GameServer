@@ -114,6 +114,27 @@ namespace GameServer
             Server.instance.AddLogWork(new SFAction<StringBuilder>(WriteLog, sb));
         }
 
+        public static void System(Type type, string sMessage)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(DateTimeOffset.Now.ToString(kTimeStringFormat));
+            sb.Append(" | ");
+            sb.Append("SYSTEM");
+            sb.Append(" | ");
+
+            if (type != null)
+            {
+                sb.Append(type.Namespace);
+                sb.Append(".");
+                sb.Append(type.Name);
+                sb.Append(" : ");
+            }
+
+            sb.Append(sMessage);
+
+            WriteLog(sb);
+        }
+
         //
         //
         //

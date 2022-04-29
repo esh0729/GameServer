@@ -169,6 +169,12 @@ namespace GameServer
 			hero.EndMove();
 
 			//
+			// 행동 종료
+			//
+
+			hero.EndAction();
+
+			//
 			// 이벤트 전송
 			//
 

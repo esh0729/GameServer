@@ -34,7 +34,7 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		protected void Start(int nPort, int nBackLogCount, int nConnectionTimeoutInterval = 10000)
+		protected void Start(int nPort, int nBackLogCount = 128, int nConnectionTimeoutInterval = 30000)
 		{
 			m_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, nPort);

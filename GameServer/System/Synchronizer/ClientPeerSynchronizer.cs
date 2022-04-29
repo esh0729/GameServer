@@ -16,14 +16,6 @@ namespace GameServer
 		protected ISFWork m_work = null;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Properties
-
-		public object syncObject
-		{
-			get { return m_clientPeer.syncObject; }
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
 
 		public ClientPeerSynchronizer(ClientPeer clientPeer, ISFWork work)
@@ -49,11 +41,14 @@ namespace GameServer
 				accountSynchronizer.Start();
 			}
 			else
+				RunWork();
+		}
+
+		protected void RunWork()
+		{
+			lock (m_clientPeer.syncObject)
 			{
-				lock (syncObject)
-				{
-					m_work.Run();
-				}
+				m_work.Run();
 			}
 		}
 	}

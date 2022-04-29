@@ -37,6 +37,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\Handler\Command\Login\InGame\Action\ActionCommandHandler.cs" />
     <Compile Include="Client\Handler\Command\Login\InGame\HeroInitEnterCommandHandler.cs" />
     <Compile Include="Client\Handler\Command\Login\InGame\HeroLogoutCommandHandler.cs" />
     <Compile Include="Client\Handler\Command\Login\InGame\InGameCommandHandler.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Instance\Place\Sector.cs" />
     <Compile Include="Instance\Unit.cs" />
     <Compile Include="Model\Character\Character.cs" />
+    <Compile Include="Model\Character\CharacterAction.cs" />
     <Compile Include="Model\Place\Continent.cs" />
     <Compile Include="Model\Place\Location.cs" />
     <Compile Include="Model\Place\PlaceType.cs" />

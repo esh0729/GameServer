@@ -148,5 +148,22 @@ namespace GameServer
 
 			return dt.Rows.Count > 0 ? dt.Rows[0] : null;
 		}
+
+		public static DataRowCollection CharacterActions(SqlConnection conn, SqlTransaction trans)
+		{
+			SqlCommand sc = new SqlCommand();
+			sc.Connection = conn;
+			sc.Transaction = trans;
+			sc.CommandType = CommandType.StoredProcedure;
+			sc.CommandText = "uspGSApi_CharacterActions";
+
+			DataTable dt = new DataTable();
+
+			SqlDataAdapter sda = new SqlDataAdapter();
+			sda.SelectCommand = sc;
+			sda.Fill(dt);
+
+			return dt.Rows;
+		}
 	}
 }

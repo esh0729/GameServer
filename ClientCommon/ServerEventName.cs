@@ -15,6 +15,7 @@
 		HeroEnter,
 		HeroExit,
 		HeroMove,
+		HeroActionStarted,
 
 		//
 		// 관심영역

@@ -46,11 +46,24 @@ namespace GameServer
 		private Vector3 m_previousPosition = Vector3.zero;
 		private float m_fPreviousYRotation = 0f;
 
-		private EntranceParam m_entranceParam = null;
+		//
+		// 장소입장
+		//
 
+		private EntranceParam m_entranceParam = null;
 		private bool m_bIsInitEntered = false;
 
+		//
+		// 이동
+		//
+
 		private bool m_bMoving = false;
+
+		//
+		// 행동
+		//
+
+		private CharacterAction m_currentAction = null;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constructors
@@ -156,6 +169,10 @@ namespace GameServer
 			get { return m_fPreviousYRotation; }
 		}
 
+		//
+		// 입장관련
+		//
+
 		public EntranceParam entranceParam
 		{
 			get { return m_entranceParam; }
@@ -167,9 +184,22 @@ namespace GameServer
 			set { m_bIsInitEntered = value; }
 		}
 
+		//
+		// 이동
+		//
+
 		public bool moving
 		{
 			get { return m_bMoving; }
+		}
+
+		//
+		// 행동
+		//
+
+		public CharacterAction currentAction
+		{
+			get { return m_currentAction; }
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,8 +283,6 @@ namespace GameServer
 					enterContinent = Resource.instance.GetContinent(Resource.instance.startContinentId);
 					enterPosition = Resource.instance.SelectStartPosition();
 					fEnterYRotation = Resource.instance.SelectStartYRotation();
-
-					Console.WriteLine("enterPosition = " + enterPosition + ", fEnterYRotation = " + fEnterYRotation);
 				}
 			}
 
@@ -269,6 +297,9 @@ namespace GameServer
 
 		private void OnUpdate()
 		{
+			if (!isLoggedIn)
+				return;
+
 			try
 			{
 				OnUpdateInternal();
@@ -358,7 +389,7 @@ namespace GameServer
 		}
 
 		//
-		//
+		// 이동
 		//
 
 		public void StartMove()
@@ -375,6 +406,29 @@ namespace GameServer
 				return;
 
 			m_bMoving = false;
+		}
+
+		//
+		// 행동
+		//
+
+		public void StartAction(CharacterAction action)
+		{
+			if (action == null)
+				throw new ArgumentNullException("action");
+
+			m_currentAction = action;
+
+			//
+			// 이벤트 전송
+			//
+
+			ServerEvent.SendHeroActionStarted(m_currentPlace.GetInterestedClientPeers(m_sector, m_id), m_id, m_currentAction.id, m_position, m_fYRotation);
+		}
+
+		public void EndAction()
+		{
+			m_currentAction = null;
 		}
 
 		//
@@ -418,9 +472,10 @@ namespace GameServer
 			//
 			//
 
-			m_worker.Stop();
 			m_account.currentHero = null;
 			Cache.instance.RemoveHero(m_id);
+
+			AddWork(new SFAction(m_worker.Stop), false);
 		}
 
 		private void Logout_SaveToDB()
@@ -452,6 +507,7 @@ namespace GameServer
 			inst.characterId = m_character.id;
 			inst.position = m_position;
 			inst.yRotation = m_fYRotation;
+			inst.actionId = m_currentAction != null ? m_currentAction.id : 0;
 
 			return inst;
 		}
@@ -465,7 +521,10 @@ namespace GameServer
 
 			foreach (Hero hero in heroes)
 			{
-				results.Add(hero.ToPDHero());
+				lock (hero.syncObject)
+				{
+					results.Add(hero.ToPDHero());
+				}
 			}
 
 			return results;

@@ -22,6 +22,12 @@
 
         HeroMoveStart,
         HeroMove,
-        HeroMoveEnd
+        HeroMoveEnd,
+
+        //
+        // 행동
+        //
+
+        Action
     }
 }

@@ -112,9 +112,9 @@ namespace GameServer
 			// 서버 시작
 			//
 
-			Start(7000, 10);
+			Start(7000);
 
-			LogUtil.Info(GetType(), "GameServer Started.");
+			LogUtil.System(GetType(), "GameServer Started.");
 			Console.WriteLine("Server start");
 		}
 
@@ -124,7 +124,7 @@ namespace GameServer
 
 		private void InitSystemData(SqlConnection conn)
 		{
-			LogUtil.Info(GetType(), "SystemData Init Started.");
+			LogUtil.System(GetType(), "SystemData Init Started.");
 
 			//
 			// 게임서버
@@ -142,7 +142,7 @@ namespace GameServer
 			//
 			//
 
-			LogUtil.Info(GetType(), "SystemData Init Completed.");
+			LogUtil.System(GetType(), "SystemData Init Completed.");
 		}
 
 		//
@@ -165,14 +165,16 @@ namespace GameServer
 			ClientPeer clientPeer = new ClientPeer(peerInit);
 			m_clientPeers.Add(clientPeer.id, clientPeer);
 
-			Console.WriteLine("Address = " + clientPeer.ipAddress + ", Port = " + clientPeer.port + ", PeerCount = " + m_clientPeers.Count);
+			Console.WriteLine("Connect: Address = " + clientPeer.ipAddress + ", Port = " + clientPeer.port + ", PeerCount = " + m_clientPeers.Count);
 
 			return clientPeer;
 		}
 
-		public void RemovePeer(Guid id)
+		public void RemoveClientPeer(ClientPeer clientPeer)
 		{
-			m_clientPeers.Remove(id);
+			m_clientPeers.Remove(clientPeer.id);
+
+			Console.WriteLine("Disconnect = Address = " + clientPeer.ipAddress + ", Port = " + clientPeer.port + ", PeerCount = " + m_clientPeers.Count);
 		}
 
 		public void AddLogWork(ISFWork work)
@@ -186,7 +188,7 @@ namespace GameServer
 
 		protected override void OnTearDown()
 		{
-			LogUtil.Info(GetType(), "OnTearDownStarted.");
+			LogUtil.System(GetType(), "OnTearDownStarted.");
 
 			//
 			//
@@ -201,7 +203,7 @@ namespace GameServer
 			//
 			//
 
-			LogUtil.Info(GetType(), "OnTearDownFinished.");
+			LogUtil.System(GetType(), "OnTearDownFinished.");
 
 			//
 			//
