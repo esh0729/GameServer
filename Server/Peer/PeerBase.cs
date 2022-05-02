@@ -76,9 +76,8 @@ namespace Server
 		{
 			if (m_bDisposed)
 				return;
-
-			if (!m_bAwaiting)
-				Receive();
+				
+			Receive();
 
 			if (m_applicationBase.connectionTimeoutInterval != 0 && (DateTime.Now - m_lastPingCheckTime).TotalMilliseconds > m_applicationBase.connectionTimeoutInterval)
 				Disconnect("Timeout.");
@@ -95,8 +94,16 @@ namespace Server
 				if (m_bDisposed)
 					return false;
 
+				//
+				// 서버 이벤트 직렬화
+				//
+
 				FullPacket fullPacket = new FullPacket(PacketType.EventData, EventData.ToBytes(eventData));
 				byte[] buffer = FullPacket.ToBytes(fullPacket);
+
+				//
+				// Packet의 바이트수 + Packet 클라이언트에 전달
+				//
 
 				List<byte> fullBuffer = new List<byte>();
 				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
@@ -119,8 +126,16 @@ namespace Server
 				if (m_bDisposed)
 					return false;
 
+				//
+				// 클라이언트 응답 직렬화
+				//
+
 				FullPacket fullPacket = new FullPacket(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
 				byte[] buffer = FullPacket.ToBytes(fullPacket);
+
+				//
+				// Packet의 바이트수 + Packet 클라이언트에 전달
+				//
 
 				List<byte> fullBuffer = new List<byte>();
 				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
@@ -149,23 +164,45 @@ namespace Server
 		{
 			try
 			{
+				//
+				// 비동기 대기는 1번만 처리
+				//
+
+				if (m_bAwaiting)
+					return;
+
 				m_bAwaiting = true;
 
+				//
+				// Packet의 바이트수를 먼저 Receive하고 해당 바이트 수많큼 buffer 크기 할당
+				//
+
 				byte[] buffer = new byte[sizeof(int)];
+				
+				//
+				// 클라이언트로부터 Packet이 올때까지 비동기 대기
+				//
+
 				int nReceiveCount = await Task.Factory.FromAsync<int>(m_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, null, null), m_socket.EndReceive);
 				if (nReceiveCount > 0)
 				{
 					int nBufferLength = BitConverter.ToInt32(buffer, 0);
 
 					buffer = new byte[nBufferLength];
-
 					m_socket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+
+					//
+					// 역직렬화
+					//
 
 					FullPacket fullPacket = FullPacket.ToFullPacket(buffer);
 
 					switch (fullPacket.type)
 					{
+						// Timeout 갱신 처리
 						case PacketType.PingCheck: OnPingCheck(); break;
+
+						// 커맨드 처리
 						case PacketType.OperationRequest: OnOperationRequest(OperationRequest.ToOperationRequest(fullPacket.packet)); break;
 
 						default:
@@ -173,10 +210,20 @@ namespace Server
 					}
 				}
 				else
+				{
+					//
+					// 받은 바이트수가 0일 경우 Clinet에서 Socket Close 했을 경우 올수 있으므로 Disconnect 호출
+					//
+
 					Disconnect("Client Socket Close.");
+				}
 			}
 			catch (Exception ex)
 			{
+				//
+				// 소켓 Reiceve중 에러 처리 이후 접속이 끊어졌을 경우 Disconnect처리
+				//
+
 				if (!m_socket.Connected)
 					Disconnect("Client Receive Error.");
 
@@ -188,12 +235,20 @@ namespace Server
 			}
 		}
 
+		//
+		// Timeout 갱신 함수
+		//
+
 		private void OnPingCheck()
 		{
 			m_lastPingCheckTime = DateTime.Now;
 
 			ResponsePingCheck();
 		}
+
+		//
+		// Timeout갱신 Reuqest 받는 즉시 Response 전송
+		//
 
 		private void ResponsePingCheck()
 		{
@@ -214,7 +269,7 @@ namespace Server
 		protected abstract void OnOperationRequest(OperationRequest request);
 
 		//
-		//
+		// 서버 종료시 클라이언트에 1바이트 데이터 전송
 		//
 
 		private void SendDisconnectResponse()

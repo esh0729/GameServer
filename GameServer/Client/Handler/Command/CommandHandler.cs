@@ -50,6 +50,10 @@ namespace GameServer
 			m_lnCommandId = lnCommandId;
 			m_body = (T1)Activator.CreateInstance(typeof(T1));
 
+			//
+			// 받은 packet은 내부에서 직렬화 되있으므로 역직렬화 후 처리
+			//
+
 			m_body.DeserializeRaw(packet);
 		}
 

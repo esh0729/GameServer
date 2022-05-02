@@ -21,6 +21,10 @@ namespace ServerFramework
 
 		protected override void OnOperationRequest(OperationRequest request)
 		{
+			//
+			// Request 타입별로 CommandHandler, EventHandler 실행
+			//
+
 			switch (request.operationCode)
 			{
 				case (byte)RequestType.Command:
