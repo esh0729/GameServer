@@ -80,10 +80,7 @@ namespace GameServer
 			if (action == null)
 				throw new ArgumentNullException("action");
 
-			SFStandaloneWork work = new SFStandaloneWork();
-			work.work = new SFAction<Action>(Runnable, action);
-
-			work.Schedule();
+			Server.instance.AddStandalonWork(new SFAction<Action>(Runnable, action));
 		}
 
 		private void Runnable(Action action)

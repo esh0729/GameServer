@@ -16,6 +16,8 @@ namespace GameServer
 		// Member variables
 
 		private SFWorker m_logWorker = null;
+		private SFMultiWorker m_standaloneWorker = null;
+
 		private CommandHandlerFactory m_commandHandlerFactory = null;
 
 		private Dictionary<int,GameServer> m_gameServers = new Dictionary<int,GameServer>();
@@ -33,6 +35,13 @@ namespace GameServer
 
 			m_logWorker = new SFWorker();
 			m_logWorker.Start();
+
+			//
+			// 독립 작업자
+			//
+
+			m_standaloneWorker = new SFMultiWorker();
+			m_standaloneWorker.Start();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +71,7 @@ namespace GameServer
 			ThreadPool.GetMaxThreads(out nMaxWorkerThreads, out nMaxCompletionPortThreads);
 
 			Console.WriteLine("nMinWorkerThreads = " + nMinWorkerThreads + ", nMaxWorkerThreads = " + nMaxWorkerThreads + ", nMinCompletionPortThreads = " + nMinCompletionPortThreads + ", nMaxCompletionPortThreads = " + nMaxCompletionPortThreads);
-			ThreadPool.SetMinThreads(nMaxWorkerThreads, nMinCompletionPortThreads);
+			ThreadPool.SetMinThreads(nMaxWorkerThreads, nMaxCompletionPortThreads);
 
 			//
 			// 명령핸들러팩토리
@@ -177,9 +186,22 @@ namespace GameServer
 			Console.WriteLine("Disconnect = Address = " + clientPeer.ipAddress + ", Port = " + clientPeer.port + ", PeerCount = " + m_clientPeers.Count);
 		}
 
+		//
+		// 로그 작업자
+		//
+
 		public void AddLogWork(ISFWork work)
 		{
 			m_logWorker.Add(work);
+		}
+		
+		//
+		// 독립 작업자
+		//
+
+		public void AddStandalonWork(ISFWork work)
+		{
+			m_standaloneWorker.Add(work);
 		}
 
 		//
@@ -206,7 +228,13 @@ namespace GameServer
 			LogUtil.System(GetType(), "OnTearDownFinished.");
 
 			//
+			// 독립 작업자 종료
 			//
+
+			m_standaloneWorker.Stop();
+
+			//
+			// 로그 작업자 종료
 			//
 
 			m_logWorker.Stop();

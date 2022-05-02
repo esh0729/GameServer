@@ -72,7 +72,7 @@ namespace Server
 					catch (Exception ex)
 					{
 						if (peer != null)
-							peer.Disconnect();
+							peer.Disconnect("Accept Error.");
 
 						OnAccpetError(ex);
 					}
@@ -124,7 +124,7 @@ namespace Server
 			{
 				foreach (PeerBase peer in m_peers.Values.ToArray())
 				{
-					peer.Disconnect();
+					peer.Disconnect("Application Dispose.");
 				}
 			}
 

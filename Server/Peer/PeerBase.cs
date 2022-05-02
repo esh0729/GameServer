@@ -81,10 +81,7 @@ namespace Server
 				Receive();
 
 			if (m_applicationBase.connectionTimeoutInterval != 0 && (DateTime.Now - m_lastPingCheckTime).TotalMilliseconds > m_applicationBase.connectionTimeoutInterval)
-			{
-				Console.WriteLine(port + ", TimeOut");
-				Disconnect();
-			}
+				Disconnect("Timeout.");
 		}
 
 		//
@@ -145,7 +142,7 @@ namespace Server
 
 		protected virtual void OnReceiveError(Exception ex)
 		{
-			//Console.WriteLine(ex.ToString());
+
 		}
 
 		private async void Receive()
@@ -156,7 +153,6 @@ namespace Server
 
 				byte[] buffer = new byte[sizeof(int)];
 				int nReceiveCount = await Task.Factory.FromAsync<int>(m_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, null, null), m_socket.EndReceive);
-
 				if (nReceiveCount > 0)
 				{
 					int nBufferLength = BitConverter.ToInt32(buffer, 0);
@@ -170,20 +166,19 @@ namespace Server
 					switch (fullPacket.type)
 					{
 						case PacketType.PingCheck: OnPingCheck(); break;
-						case PacketType.OperationRequest: OnOperationRequest(OperationRequest.ToOperationRequest(fullPacket.packet));
-							break;
+						case PacketType.OperationRequest: OnOperationRequest(OperationRequest.ToOperationRequest(fullPacket.packet)); break;
 
 						default:
 							throw new Exception("Not Valied PacketType");
 					}
 				}
 				else
-					Disconnect();
+					Disconnect("Client Socket Close.");
 			}
 			catch (Exception ex)
 			{
 				if (!m_socket.Connected)
-					Disconnect();
+					Disconnect("Client Receive Error.");
 
 				OnReceiveError(ex);
 			}
@@ -241,7 +236,7 @@ namespace Server
 		//
 		//
 
-		public void Disconnect()
+		public void Disconnect(string sDisconnectType)
 		{
 			if (m_bDisposed)
 				return;
@@ -264,10 +259,10 @@ namespace Server
 
 				m_applicationBase.RemovePeer(this);
 
-				OnDisconnect();
+				OnDisconnect(sDisconnectType);
 			}
 		}
 
-		protected abstract void OnDisconnect();
+		protected abstract void OnDisconnect(string sDisconnectType);
 	}
 }

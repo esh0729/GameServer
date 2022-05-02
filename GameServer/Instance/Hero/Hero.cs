@@ -475,7 +475,11 @@ namespace GameServer
 			m_account.currentHero = null;
 			Cache.instance.RemoveHero(m_id);
 
-			AddWork(new SFAction(m_worker.Stop), false);
+			//
+			//
+			//
+
+			Server.instance.AddStandalonWork(new SFAction(m_worker.Stop));
 		}
 
 		private void Logout_SaveToDB()

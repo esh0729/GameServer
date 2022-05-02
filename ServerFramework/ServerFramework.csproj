@@ -51,6 +51,7 @@
     <Compile Include="SFRandom.cs" />
     <Compile Include="Work\ISFWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Work\SFMultiWorker.cs" />
     <Compile Include="Work\Sql\SFSqlWork.cs" />
     <Compile Include="Work\SFAction.cs" />
     <Compile Include="Work\SFWorker.cs" />
@@ -58,7 +59,6 @@
     <Compile Include="Work\Sql\SFSyncWork.cs" />
     <Compile Include="Work\Sql\SFSyncFactory.cs" />
     <Compile Include="Work\Sql\SyncWorkType.cs" />
-    <Compile Include="Work\Standalone\SFStandaloneWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Server\Server.csproj">

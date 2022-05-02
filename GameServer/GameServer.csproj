@@ -88,7 +88,7 @@
     <Compile Include="Server.cs" />
     <Compile Include="System\PeerImpl.cs" />
     <Compile Include="System\Synchronizer\HeroSynchronizer.cs" />
-    <Compile Include="System\Synchronizer\Synchronizer.cs" />
+    <Compile Include="System\Synchronizer\ISynchronizer.cs" />
     <Compile Include="System\Util\DateTimeUtil.cs" />
     <Compile Include="System\Util\JsonUtil.cs" />
     <Compile Include="System\Util\LogUtil.cs" />

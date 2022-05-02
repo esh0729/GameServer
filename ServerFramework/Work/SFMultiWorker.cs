@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace ServerFramework
 {
-	public class SFWorker
+	public class SFMultiWorker
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
@@ -12,32 +14,31 @@ namespace ServerFramework
 		private object m_syncObject = new object();
 
 		private Queue<ISFWork> m_works = new Queue<ISFWork>();
+		private List<SFWorker> m_workers = new List<SFWorker>();
 
 		private ManualResetEvent m_nextSignal = new ManualResetEvent(false);
 		private ManualResetEvent m_endSignal = new ManualResetEvent(false);
 
 		private bool m_bRunning = false;
-		private bool m_bResting = false;
 		private bool m_bDisposed = false;
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Properties
-
-		public bool resting
-		{
-			get { return m_bResting; }
-		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		public void Start()
+		public void Start(int nWorkerCount = 10)
 		{
 			m_bRunning = true;
-			m_bResting = true;
 
 			m_nextSignal.Reset();
 			m_endSignal.Set();
+
+			for (int i = 0; i < nWorkerCount; i++)
+			{
+				SFWorker worker = new SFWorker();
+				worker.Start();
+
+				m_workers.Add(worker);
+			}
 
 			ThreadPool.QueueUserWorkItem(Running);
 		}
@@ -60,8 +61,6 @@ namespace ServerFramework
 
 				if (m_works.Count == 1)
 				{
-					m_bResting = false;
-
 					m_endSignal.Reset();
 					m_nextSignal.Set();
 				}
@@ -82,18 +81,24 @@ namespace ServerFramework
 		{
 			ISFWork work = m_works.Peek();
 
-			work.Run();
-
-			lock (m_syncObject)
+			foreach (SFWorker worker in m_workers)
 			{
-				m_works.Dequeue();
+				if (!worker.resting)
+					continue;
 
-				if (m_works.Count == 0)
+				worker.Add(work);
+
+				lock (m_syncObject)
 				{
-					m_bResting = true;
+					m_works.Dequeue();
 
-					m_nextSignal.Reset();
-					m_endSignal.Set();
+					if (m_works.Count == 0)
+					{
+						m_nextSignal.Reset();
+						m_endSignal.Set();
+					}
+
+					break;
 				}
 			}
 		}
@@ -106,9 +111,13 @@ namespace ServerFramework
 
 			m_endSignal.WaitOne();
 
-			m_bDisposed = true;
-			m_nextSignal.Dispose();
+			foreach (SFWorker worker in m_workers)
+			{
+				worker.Stop();
+			}
+
 			m_endSignal.Dispose();
+			m_bDisposed = true;
 		}
 	}
 }
