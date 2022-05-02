@@ -72,10 +72,8 @@ namespace GameServer
 				userConn = Util.OpenUserDBConnection();
 				userTrans = userConn.BeginTransaction();
 
-				/*
 				if (UserDBDoc.HeroName(userConn, userTrans, m_sName) != null)
 					throw new CommandHandleException(kResult_ExistHeroName, "이미 존재하는 영웅이름입니다. m_sName = " + m_sName);
-				*/
 
 				//
 				// GameDB 검사
@@ -96,10 +94,8 @@ namespace GameServer
 				if (UserDBDocEx.AddUserHero(userConn, userTrans, m_myAccount.userId, m_heroId, m_sName, m_character.id) != 0)
 					throw new CommandHandleException(kResult_Error, "사용자영웅 등록 실패.");
 
-				/*
 				if (UserDBDocEx.AddHeroName(userConn, userTrans, m_sName, m_heroId) != 0)
 					throw new CommandHandleException(kResult_Error, "영웅이름 등록 실패.");
-				*/
 
 				//
 				// GameDB
