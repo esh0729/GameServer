@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Server
 {
@@ -15,6 +16,11 @@ namespace Server
 		private Socket m_socket = null;
 		private string m_sIPAddress = null;
 		private int m_nPort = 0;
+
+		private PacketQueue m_packetQueue = null;
+
+		private object m_sendLockObject = new object();
+		private Queue<FullPacket> m_sendPackets = new Queue<FullPacket>();
 
 		private DateTime m_lastPingCheckTime = DateTime.MinValue;
 
@@ -40,6 +46,8 @@ namespace Server
 			m_socket = peerInit.socket;
 			m_sIPAddress = ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString();
 			m_nPort = ((IPEndPoint)m_socket.RemoteEndPoint).Port;
+
+			m_packetQueue = new PacketQueue();
 
 			m_id = Guid.NewGuid();
 
@@ -76,11 +84,12 @@ namespace Server
 		{
 			if (m_bDisposed)
 				return;
-				
-			Receive();
+
+			if (!m_bAwaiting)
+				Receive();
 
 			if (m_applicationBase.connectionTimeoutInterval != 0 && (DateTime.Now - m_lastPingCheckTime).TotalMilliseconds > m_applicationBase.connectionTimeoutInterval)
-				Disconnect("Timeout.");
+				Disconnect();
 		}
 
 		//
@@ -95,21 +104,13 @@ namespace Server
 					return false;
 
 				//
-				// 서버 이벤트 직렬화
+				// 패킷큐에서 인스턴스 호출
 				//
 
-				FullPacket fullPacket = new FullPacket(PacketType.EventData, EventData.ToBytes(eventData));
-				byte[] buffer = FullPacket.ToBytes(fullPacket);
+				FullPacket fullPacket = m_packetQueue.GetPacket();
+				fullPacket.Set(PacketType.EventData, EventData.ToBytes(eventData));
 
-				//
-				// Packet의 바이트수 + Packet 클라이언트에 전달
-				//
-
-				List<byte> fullBuffer = new List<byte>();
-				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
-				fullBuffer.AddRange(buffer);
-
-				m_socket.Send(fullBuffer.ToArray());
+				Send(fullPacket);
 			}
 			catch
 			{
@@ -127,10 +128,53 @@ namespace Server
 					return false;
 
 				//
-				// 클라이언트 응답 직렬화
+				// 패킷큐에서 인스턴스 호출
 				//
 
-				FullPacket fullPacket = new FullPacket(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
+				FullPacket fullPacket = m_packetQueue.GetPacket();
+				fullPacket.Set(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
+
+				Send(fullPacket);
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private void Send(FullPacket packet)
+		{
+			lock (m_sendLockObject)
+			{
+				m_sendPackets.Enqueue(packet);
+
+				if (m_sendPackets.Count > 1)
+					return;
+			}
+
+			StartSend();
+		}
+
+		private void StartSend()
+		{
+			//
+			// 직렬화
+			//
+
+			try
+			{
+				if (m_bDisposed)
+					return;
+
+				FullPacket fullPacket = null;
+
+				lock (m_sendLockObject)
+				{
+					fullPacket = m_sendPackets.Peek();
+				}
+
 				byte[] buffer = FullPacket.ToBytes(fullPacket);
 
 				//
@@ -141,14 +185,34 @@ namespace Server
 				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
 				fullBuffer.AddRange(buffer);
 
-				m_socket.Send(fullBuffer.ToArray());
+				Task.Factory.FromAsync(m_socket.BeginSend(fullBuffer.ToArray(), 0, fullBuffer.Count, SocketFlags.None, CompleteSend, null), m_socket.EndSend);
 			}
 			catch
 			{
-				return false;
-			}
+				//
+				// 소켓 Send중 에러 처리 이후 접속이 끊어졌을 경우 Disconnect처리
+				//
 
-			return true;
+				if (!m_socket.Connected)
+					Disconnect();
+			}
+		}
+
+		private void CompleteSend(object state)
+		{
+			lock (m_sendLockObject)
+			{
+				if (m_bDisposed)
+					return;
+
+				FullPacket packet = m_sendPackets.Dequeue();
+				m_packetQueue.ReturnPacket(packet);
+
+				if (m_sendPackets.Count == 0)
+					return;
+			}		
+
+			StartSend();
 		}
 
 		//
@@ -157,20 +221,14 @@ namespace Server
 
 		protected virtual void OnReceiveError(Exception ex)
 		{
-
 		}
 
 		private async void Receive()
 		{
+			FullPacket fullPacket = null;
+
 			try
 			{
-				//
-				// 비동기 대기는 1번만 처리
-				//
-
-				if (m_bAwaiting)
-					return;
-
 				m_bAwaiting = true;
 
 				//
@@ -178,7 +236,7 @@ namespace Server
 				//
 
 				byte[] buffer = new byte[sizeof(int)];
-				
+
 				//
 				// 클라이언트로부터 Packet이 올때까지 비동기 대기
 				//
@@ -194,8 +252,8 @@ namespace Server
 					//
 					// 역직렬화
 					//
-
-					FullPacket fullPacket = FullPacket.ToFullPacket(buffer);
+					fullPacket = m_packetQueue.GetPacket();
+					FullPacket.ToFullPacket(buffer, ref fullPacket);
 
 					switch (fullPacket.type)
 					{
@@ -215,7 +273,7 @@ namespace Server
 					// 받은 바이트수가 0일 경우 Clinet에서 Socket Close 했을 경우 올수 있으므로 Disconnect 호출
 					//
 
-					Disconnect("Client Socket Close.");
+					Disconnect();
 				}
 			}
 			catch (Exception ex)
@@ -225,13 +283,15 @@ namespace Server
 				//
 
 				if (!m_socket.Connected)
-					Disconnect("Client Receive Error.");
+					Disconnect();
 
 				OnReceiveError(ex);
 			}
 			finally
 			{
 				m_bAwaiting = false;
+
+				m_packetQueue.ReturnPacket(fullPacket);
 			}
 		}
 
@@ -257,13 +317,10 @@ namespace Server
 
 			List<byte> fullBuffer = new List<byte>();
 
-			FullPacket fullPacket = new FullPacket(PacketType.PingCheck, new byte[] { });
-			byte[] buffer = FullPacket.ToBytes(fullPacket);
+			FullPacket fullPacket = m_packetQueue.GetPacket();
+			fullPacket.Set(PacketType.PingCheck, new byte[] { });
 
-			fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
-			fullBuffer.AddRange(buffer);
-
-			m_socket.Send(fullBuffer.ToArray());
+			Send(fullPacket);
 		}
 
 		protected abstract void OnOperationRequest(OperationRequest request);
@@ -291,7 +348,7 @@ namespace Server
 		//
 		//
 
-		public void Disconnect(string sDisconnectType)
+		public void Disconnect()
 		{
 			if (m_bDisposed)
 				return;
@@ -300,9 +357,15 @@ namespace Server
 
 			try
 			{
+				lock (m_sendLockObject)
+				{
+					m_sendPackets.Clear();
+					m_packetQueue.Clear();
+				}
+
 				SendDisconnectResponse();
 
-				m_socket.Disconnect(true);
+				m_socket.Shutdown(SocketShutdown.Both);
 			}
 			catch
 			{
@@ -314,10 +377,10 @@ namespace Server
 
 				m_applicationBase.RemovePeer(this);
 
-				OnDisconnect(sDisconnectType);
+				OnDisconnect();
 			}
 		}
 
-		protected abstract void OnDisconnect(string sDisconnectType);
+		protected abstract void OnDisconnect();
 	}
 }

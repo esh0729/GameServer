@@ -39,10 +39,8 @@ namespace GameServer
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		protected override void OnDisconnect(string sDisconnectType)
+		protected override void OnDisconnect()
 		{
-			LogUtil.Error(GetType(), sDisconnectType);
-
 			if (m_account != null)
 			{
 				AccountSynchronizer synchronizer = new AccountSynchronizer(m_account, new SFAction(m_account.Logout), true);

@@ -13,19 +13,6 @@ namespace Server
 		public byte[] m_packet;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Constructors
-
-		public FullPacket(PacketType type, byte[] packet)
-		{
-			if (packet == null)
-				throw new ArgumentNullException("packet");
-
-			m_type = type;
-			m_nPacketLength = packet.Length;
-			m_packet = packet;
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
 		public PacketType type
@@ -44,6 +31,26 @@ namespace Server
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Member functions
+
+		public void Set(PacketType type, byte[] packet)
+		{
+			if (packet == null)
+				throw new ArgumentNullException("packet");
+
+			m_type = type;
+			m_nPacketLength = packet.Length;
+			m_packet = packet;
+		}
+
+		public void Clear()
+		{
+			m_type = default(PacketType);
+			m_nPacketLength = 0;
+			m_packet = null;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Static member functions
 
 		public static byte[] ToBytes(FullPacket fullPacket)
@@ -57,7 +64,7 @@ namespace Server
 			return stream.ToArray();
 		}
 
-		public static FullPacket ToFullPacket(byte[] bytes)
+		public static void ToFullPacket(byte[] bytes, ref FullPacket fullPacket)
 		{
 			MemoryStream stream = new MemoryStream(bytes);
 			BinaryReader reader = new BinaryReader(stream);
@@ -65,7 +72,7 @@ namespace Server
 			int nPacketLength = reader.ReadInt32();
 			byte[] packet = reader.ReadBytes(nPacketLength);
 
-			return new FullPacket((PacketType)bType, packet);
+			fullPacket.Set((PacketType)bType, packet);
 		}
 	}
 }

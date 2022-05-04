@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Packet\PacketQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBase.cs" />
     <Compile Include="Packet\EventData.cs" />

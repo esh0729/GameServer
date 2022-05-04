@@ -64,7 +64,7 @@ namespace GameServer
 
 		protected override void OnEvent(int nName, byte[] packet)
 		{
-			Console.WriteLine("OnEvent");
+
 		}
 	}
 }
