@@ -159,10 +159,6 @@ namespace Server
 
 		private void StartSend()
 		{
-			//
-			// 직렬화
-			//
-
 			try
 			{
 				if (m_bDisposed)
@@ -174,6 +170,10 @@ namespace Server
 				{
 					fullPacket = m_sendPackets.Peek();
 				}
+
+				//
+				// 직렬화
+				//
 
 				byte[] buffer = FullPacket.ToBytes(fullPacket);
 
@@ -205,12 +205,20 @@ namespace Server
 				if (m_bDisposed)
 					return;
 
+				//
+				// Send완료후 전달패킷큐에서 해당 데이터 삭제
+				//
+
 				FullPacket packet = m_sendPackets.Dequeue();
 				m_packetQueue.ReturnPacket(packet);
 
 				if (m_sendPackets.Count == 0)
 					return;
-			}		
+			}
+
+			//
+			// 이후 전달패킷큐에 아직 전달할 데이터가 있을경우 다시 전달 시작
+			//
 
 			StartSend();
 		}
