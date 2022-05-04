@@ -85,8 +85,16 @@ namespace Server
 			if (m_bDisposed)
 				return;
 
+			//
+			// 이미 대기중일 경우 Receive함수 호출X
+			//
+
 			if (!m_bAwaiting)
 				Receive();
+
+			//
+			// Timeout시간 경과시 클라이언트 Disconnect;
+			//
 
 			if (m_applicationBase.connectionTimeoutInterval != 0 && (DateTime.Now - m_lastPingCheckTime).TotalMilliseconds > m_applicationBase.connectionTimeoutInterval)
 				Disconnect();
