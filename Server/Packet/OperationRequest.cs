@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Server
 {
-	public class OperationRequest
+	public class OperationRequest : IMessage
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
@@ -34,6 +34,11 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
+		public PacketType type
+		{
+			get { return PacketType.OperationRequest; }
+		}
+
 		public byte operationCode
 		{
 			get { return m_bOperationCode; }
@@ -53,19 +58,34 @@ namespace Server
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Static member functions
+		// Member functions
 
-		public static byte[] ToBytes(OperationRequest operationRequest)
+		public byte[] GetBytes()
 		{
 			MemoryStream stream = new MemoryStream();
 			BinaryWriter writer = new BinaryWriter(stream);
-			writer.Write(operationRequest.operationCode);
+			writer.Write(m_bOperationCode);
 
 			BinaryFormatter formatter = new BinaryFormatter();
-			formatter.Serialize(stream, operationRequest.parameters);
+			formatter.Serialize(stream, m_parameters);
 
 			return stream.ToArray();
 		}
+
+		public void GetBytes(byte[] buffer, out long lnLength)
+		{
+			MemoryStream stream = new MemoryStream(buffer);
+			BinaryWriter writer = new BinaryWriter(stream);
+			writer.Write(m_bOperationCode);
+
+			BinaryFormatter formatter = new BinaryFormatter();
+			formatter.Serialize(stream, m_parameters);
+
+			lnLength = stream.Position;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Static member functions
 
 		public static OperationRequest ToOperationRequest(byte[] bytes)
 		{

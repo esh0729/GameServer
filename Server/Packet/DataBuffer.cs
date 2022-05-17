@@ -1,0 +1,36 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Server
+{
+	public class DataBuffer
+	{
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Constants
+
+		public const int kBufferLength = ushort.MaxValue;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Member variables
+
+		private byte[] m_buffer = new byte[kBufferLength];
+		private int m_nUseLength = 0;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Properties
+
+		public byte[] buffer
+		{
+			get { return m_buffer; }
+		}
+
+		public int useLength
+		{
+			get { return m_nUseLength; }
+			set { m_nUseLength = value; }
+		}
+	}
+}

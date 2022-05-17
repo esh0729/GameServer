@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="Crc16.cs" />
     <Compile Include="Packet\DataQueue.cs" />
+    <Compile Include="Packet\DataBuffer.cs" />
+    <Compile Include="Packet\IMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBase.cs" />
     <Compile Include="Packet\EventData.cs" />

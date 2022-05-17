@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Server
 {
-	public class OperationResponse
+	public class OperationResponse : IMessage
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
@@ -37,6 +37,11 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
+		public PacketType type
+		{
+			get { return PacketType.OperationResponse; }
+		}
+
 		public byte operationCode
 		{
 			get { return m_bOperationCode; }
@@ -68,21 +73,38 @@ namespace Server
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Static member functions
+		// Member functions
 
-		public static byte[] ToBytes(OperationResponse operationResponse)
+		public byte[] GetBytes()
 		{
 			MemoryStream stream = new MemoryStream();
 			BinaryWriter writer = new BinaryWriter(stream);
-			writer.Write(operationResponse.operationCode);
-			writer.Write(operationResponse.returnCode);
-			writer.Write(operationResponse.debugMessage);
+			writer.Write(m_bOperationCode);
+			writer.Write(m_nReturnCode);
+			writer.Write(m_sDebugMessage);
 
 			BinaryFormatter formatter = new BinaryFormatter();
-			formatter.Serialize(stream, operationResponse.parameters);
+			formatter.Serialize(stream, m_parameters);
 
 			return stream.ToArray();
 		}
+
+		public void GetBytes(byte[] buffer, out long lnLength)
+		{
+			MemoryStream stream = new MemoryStream(buffer);
+			BinaryWriter writer = new BinaryWriter(stream);
+			writer.Write(m_bOperationCode);
+			writer.Write(m_nReturnCode);
+			writer.Write(m_sDebugMessage);
+
+			BinaryFormatter formatter = new BinaryFormatter();
+			formatter.Serialize(stream, m_parameters);
+
+			lnLength = stream.Position;
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Static member functions
 
 		public static OperationResponse ToOperationResponse(byte[] bytes)
 		{

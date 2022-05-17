@@ -172,6 +172,8 @@ namespace GameServer
 		protected override PeerBase CreatePeer(PeerInit peerInit)
 		{
 			ClientPeer clientPeer = new ClientPeer(peerInit);
+			clientPeer.Start();
+
 			m_clientPeers.Add(clientPeer.id, clientPeer);
 
 			Console.WriteLine("Connect: Address = " + clientPeer.ipAddress + ", Port = " + clientPeer.port + ", PeerCount = " + m_clientPeers.Count);

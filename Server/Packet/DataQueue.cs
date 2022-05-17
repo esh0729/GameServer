@@ -33,8 +33,6 @@ namespace Server
 			if (packet == null)
 				return;
 
-			packet.Clear();
-
 			lock (m_lockObject)
 			{
 				m_queue.Enqueue(packet);

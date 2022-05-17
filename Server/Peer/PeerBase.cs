@@ -20,11 +20,10 @@ namespace Server
 		private DataQueue m_dataQueue = null;
 
 		private object m_sendLockObject = new object();
-		private Queue<Data> m_sendDatas = new Queue<Data>();
+		private Queue<IMessage> m_sendMessage = new Queue<IMessage>();
+		private DataBuffer m_sendBuffer = null;
 
 		private DateTime m_lastPingCheckTime = DateTime.MinValue;
-
-		private bool m_bAwaiting = false;
 
 		//
 		//
@@ -80,17 +79,25 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
+		public void Start()
+		{
+			//
+			// 수신 버퍼 생성
+			//
+
+			DataBuffer buffer = new DataBuffer();
+
+			//
+			// 수신 비동기 대기
+			//
+
+			m_socket.BeginReceive(buffer.buffer, 0, DataBuffer.kBufferLength, 0, new AsyncCallback(ReceiveCallback), buffer);
+		}
+
 		public void Service()
 		{
 			if (m_bDisposed)
 				return;
-
-			//
-			// 이미 대기중일 경우 Receive함수 호출X
-			//
-
-			if (!m_bAwaiting)
-				Receive();
 
 			//
 			// Timeout시간 경과시 클라이언트 Disconnect;
@@ -101,137 +108,6 @@ namespace Server
 		}
 
 		//
-		// Send
-		//
-
-		public bool SendEvent(EventData eventData)
-		{
-			try
-			{
-				if (m_bDisposed)
-					return false;
-
-				//
-				// 데이터큐에서 인스턴스 호출
-				//
-
-				Data data = m_dataQueue.GetData();
-				data.Set(PacketType.EventData, EventData.ToBytes(eventData));
-
-				Send(data);
-			}
-			catch
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		public bool SendResponse(OperationResponse operationResponse)
-		{
-			try
-			{
-				if (m_bDisposed)
-					return false;
-
-				//
-				// 데이터큐에서 인스턴스 호출
-				//
-
-				Data data = m_dataQueue.GetData();
-				data.Set(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
-
-				Send(data);
-			}
-			catch
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		private void Send(Data data)
-		{
-			lock (m_sendLockObject)
-			{
-				m_sendDatas.Enqueue(data);
-
-				if (m_sendDatas.Count > 1)
-					return;
-			}
-
-			StartSend();
-		}
-
-		private void StartSend()
-		{
-			try
-			{
-				if (m_bDisposed)
-					return;
-
-				Data data = null;
-
-				lock (m_sendLockObject)
-				{
-					data = m_sendDatas.Peek();
-				}
-
-				//
-				// 직렬화
-				//
-
-				byte[] buffer = Data.ToBytes(data);
-
-				//
-				// Packet의 바이트수 + Packet 클라이언트에 전달
-				//
-
-				List<byte> fullBuffer = new List<byte>();
-				fullBuffer.AddRange(BitConverter.GetBytes(buffer.Length));
-				fullBuffer.AddRange(buffer);
-
-				Task.Factory.FromAsync(m_socket.BeginSend(fullBuffer.ToArray(), 0, fullBuffer.Count, SocketFlags.None, CompleteSend, null), m_socket.EndSend);
-			}
-			catch
-			{
-				//
-				// 소켓 Send중 에러 처리 이후 접속이 끊어졌을 경우 Disconnect처리
-				//
-
-				if (!m_socket.Connected)
-					Disconnect();
-			}
-		}
-
-		private void CompleteSend(object state)
-		{
-			lock (m_sendLockObject)
-			{
-				if (m_bDisposed)
-					return;
-
-				//
-				// Send완료후 전달데이터큐에서 해당 데이터 삭제
-				//
-
-				Data data = m_sendDatas.Dequeue();
-				m_dataQueue.ReturnData(data);
-
-				if (m_sendDatas.Count == 0)
-					return;
-			}
-
-			//
-			// 이후 전달데이터큐에 아직 전달할 데이터가 있을경우 다시 전달 시작
-			//
-
-			StartSend();
-		}
-
-		//
 		// Receive
 		//
 
@@ -239,37 +115,23 @@ namespace Server
 		{
 		}
 
-		private async void Receive()
+		private void ReceiveCallback(IAsyncResult result)
 		{
+			if (m_bDisposed)
+				return;
+
+			DataBuffer dataBuffer = (DataBuffer)result.AsyncState;
+
 			Data data = null;
 
 			try
 			{
-				m_bAwaiting = true;
-
-				//
-				// Packet의 바이트수를 먼저 Receive하고 해당 바이트 수많큼 buffer 크기 할당
-				//
-
-				byte[] buffer = new byte[sizeof(int)];
-
-				//
-				// 클라이언트로부터 Packet이 올때까지 비동기 대기
-				//
-
-				int nReceiveCount = await Task.Factory.FromAsync<int>(m_socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, null, null), m_socket.EndReceive);
-				if (nReceiveCount > 0)
+				dataBuffer.useLength = m_socket.EndReceive(result);
+				if (dataBuffer.useLength > 0)
 				{
-					int nBufferLength = BitConverter.ToInt32(buffer, 0);
-
-					buffer = new byte[nBufferLength];
-					m_socket.Receive(buffer, 0, buffer.Length, SocketFlags.None);
-
-					//
 					// 역직렬화
-					//
 					data = m_dataQueue.GetData();
-					if (!Data.ToData(buffer, ref data))
+					if (!data.SetData(dataBuffer.buffer, dataBuffer.useLength))
 						throw new Exception("Invalid Data");
 
 					switch (data.type)
@@ -306,9 +168,172 @@ namespace Server
 			}
 			finally
 			{
-				m_bAwaiting = false;
+				//
+				// 데이터 객체 큐에 반납
+				//
 
-				m_dataQueue.ReturnData(data);
+				if (data != null)
+					m_dataQueue.ReturnData(data);
+
+				//
+				// 수신 비동기 대기
+				//
+
+				if (m_socket.Connected)
+					m_socket.BeginReceive(dataBuffer.buffer, 0, DataBuffer.kBufferLength, SocketFlags.None, ReceiveCallback, dataBuffer);
+			}
+		}
+
+		//
+		// Send
+		//
+
+		public bool SendEvent(EventData eventData)
+		{
+			if (m_bDisposed)
+				return false;
+
+			try
+			{
+				Send(eventData);
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool SendResponse(OperationResponse operationResponse)
+		{
+			if (m_bDisposed)
+				return false;
+
+			try
+			{
+				Send(operationResponse);
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private void Send(IMessage message)
+		{
+			lock (m_sendLockObject)
+			{
+				m_sendMessage.Enqueue(message);
+
+				if (m_sendMessage.Count > 1)
+					return;
+			}
+
+			StartSend();
+		}
+
+		private void StartSend()
+		{
+			if (m_bDisposed)
+				return;
+
+			Data data = null;
+
+			try
+			{
+				if (m_sendBuffer == null)
+					m_sendBuffer = new DataBuffer();
+
+				IMessage message = null;
+
+				//
+				// 첫번째 메세지 출력
+				//
+
+				lock (m_sendLockObject)
+				{
+					message = m_sendMessage.Peek();
+				}
+
+				//
+				// Data 인스턴스 설정
+				//
+
+				data = m_dataQueue.GetData();
+
+				long lnLength;
+				data.type = message.type;
+				message.GetBytes(data.packet, out lnLength);
+				data.packetLength = Convert.ToInt32(lnLength);
+
+				//
+				// 직렬화
+				//
+
+				int nBufferLength;
+				data.GetBytes(m_sendBuffer.buffer, out nBufferLength);
+				m_sendBuffer.useLength = nBufferLength;
+
+				//
+				// 클라이언트에 비동기 전송
+				//
+
+				m_socket.BeginSend(m_sendBuffer.buffer, 0, m_sendBuffer.useLength, SocketFlags.None, new AsyncCallback(SendCallback), null);
+			}
+			catch
+			{
+				//
+				// 소켓 Send중 에러 처리 이후 접속이 끊어졌을 경우 Disconnect처리
+				//
+
+				if (!m_socket.Connected)
+					Disconnect();
+			}
+			finally
+			{
+				//
+				// 데이터 큐 반납
+				//
+
+				if (data != null)
+					m_dataQueue.ReturnData(data);
+			}
+		}
+
+		private void SendCallback(IAsyncResult result)
+		{
+			if (m_bDisposed)
+				return;
+
+			try
+			{
+				m_socket.EndSend(result);
+
+				lock (m_sendLockObject)
+				{
+					//
+					// Send완료후 전달메세지큐에서 해당 데이터 삭제
+					//
+
+					m_sendMessage.Dequeue();
+
+					if (m_sendMessage.Count == 0)
+						return;
+				}
+
+				//
+				// 이후 전달메세지큐에 아직 전달할 데이터가 있을경우 다시 전달 시작
+				//
+
+				StartSend();
+			}
+			catch
+			{
+				if (!m_socket.Connected)
+					Disconnect();
 			}
 		}
 
@@ -327,17 +352,46 @@ namespace Server
 		// Timeout갱신 Reuqest 받는 즉시 Response 전송
 		//
 
+		private byte[] pingCheckBuffer = new byte[Data.kNonPacketDataSize];
 		private void ResponsePingCheck()
 		{
 			if (m_bDisposed)
 				return;
 
-			List<byte> fullBuffer = new List<byte>();
+			Data data = null;
 
-			Data data = m_dataQueue.GetData();
-			data.Set(PacketType.PingCheck, new byte[] { });
+			try
+			{
+				data = m_dataQueue.GetData();
+				data.type = PacketType.PingCheck;
+				data.packetLength = 0;
 
-			Send(data);
+				int nLength;
+				data.GetBytes(pingCheckBuffer, out nLength);
+
+				m_socket.BeginSend(pingCheckBuffer, 0, nLength, SocketFlags.None, SendPingCheckCallback, null);
+			}
+			finally
+			{
+				if (data != null)
+					m_dataQueue.ReturnData(data);
+			}
+		}
+
+		private void SendPingCheckCallback(IAsyncResult result)
+		{
+			if (m_bDisposed)
+				return;
+
+			try
+			{
+				m_socket.EndSend(result);
+			}
+			catch
+			{
+				if (!m_socket.Connected)
+					Disconnect();
+			}
 		}
 
 		protected abstract void OnOperationRequest(OperationRequest request);
@@ -350,11 +404,7 @@ namespace Server
 		{
 			try
 			{
-				List<byte> fullBuffer = new List<byte>();
-
-				fullBuffer.Add(0);
-
-				m_socket.Send(fullBuffer.ToArray());
+				m_socket.Send(new byte[] { 0 });
 			}
 			catch
 			{
@@ -376,9 +426,10 @@ namespace Server
 			{
 				lock (m_sendLockObject)
 				{
-					m_sendDatas.Clear();
-					m_dataQueue.Clear();
+					m_sendMessage.Clear();
 				}
+
+				m_dataQueue.Clear();
 
 				SendDisconnectResponse();
 

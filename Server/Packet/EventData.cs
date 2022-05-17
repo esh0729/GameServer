@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Server
 {
-	public class EventData
+	public class EventData : IMessage
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
@@ -34,6 +34,11 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Properties
 
+		public PacketType type
+		{
+			get { return PacketType.EventData; }
+		}
+
 		public byte code
 		{
 			get { return m_bCode; }
@@ -55,6 +60,30 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
+		public byte[] GetBytes()
+		{
+			MemoryStream stream = new MemoryStream();
+			BinaryWriter writer = new BinaryWriter(stream);
+			writer.Write(m_bCode);
+
+			BinaryFormatter formatter = new BinaryFormatter();
+			formatter.Serialize(stream, m_parameters);
+
+			return stream.ToArray();
+		}
+
+		public void GetBytes(byte[] buffer, out long lnLength)
+		{
+			MemoryStream stream = new MemoryStream(buffer);
+			BinaryWriter writer = new BinaryWriter(stream);
+			writer.Write(m_bCode);
+
+			BinaryFormatter formatter = new BinaryFormatter();
+			formatter.Serialize(stream, m_parameters);
+
+			lnLength = stream.Position;
+		}
+
 		public void SendTo(IEnumerable<PeerBase> peers)
 		{
 			foreach (PeerBase peer in peers)
@@ -65,18 +94,6 @@ namespace Server
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Static member functions
-
-		public static byte[] ToBytes(EventData eventData)
-		{
-			MemoryStream stream = new MemoryStream();
-			BinaryWriter writer = new BinaryWriter(stream);
-			writer.Write(eventData.code);
-
-			BinaryFormatter formatter = new BinaryFormatter();
-			formatter.Serialize(stream, eventData.parameters);
-
-			return stream.ToArray();
-		}
 
 		public static EventData ToEventData(byte[] bytes)
 		{

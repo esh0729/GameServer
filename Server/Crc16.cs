@@ -16,12 +16,13 @@ namespace Server
 			ushort usCRC = 0xFFFF;
 			ushort usTemp = 0;
 
-			foreach (char cPacket in packet)
+			foreach (byte bPacket in packet)
 			{
-				byte bPacket = Convert.ToByte(cPacket);
+				// 하위 4비트에 대한 체크섬 계산
 				usTemp = s_Crc16Table[usCRC & 0x000F];
 				usCRC = (ushort)((usCRC >> 4) & 0x0FFF);
 				usCRC = (ushort)(usCRC ^ usTemp ^ s_Crc16Table[bPacket & 0x000F]);
+				// 상위 4비트에 대한 체크섬 계산
 				usTemp = s_Crc16Table[usCRC & 0x000F];
 				usCRC = (ushort)((usCRC >> 4) & 0x0FFF);
 				usCRC = (ushort)(usCRC ^ usTemp ^ s_Crc16Table[(bPacket >> 4) & 0x000F]);
