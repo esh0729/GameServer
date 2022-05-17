@@ -269,7 +269,8 @@ namespace Server
 					// 역직렬화
 					//
 					data = m_dataQueue.GetData();
-					Data.ToData(buffer, ref data);
+					if (!Data.ToData(buffer, ref data))
+						throw new Exception("Invalid Data");
 
 					switch (data.type)
 					{

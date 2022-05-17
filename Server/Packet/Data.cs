@@ -120,8 +120,9 @@ namespace Server
 
 			byte[] checkArray = new byte[buffer.Length - 4];
 			Array.Copy(buffer, 1, checkArray, 0, checkArray.Length);
+			byte[] crc = BitConverter.GetBytes(Crc16.Calc(checkArray));
 
-			if (buffer[buffer.Length - 3] != checkArray[0] || buffer[buffer.Length - 2] != checkArray[1])
+			if (buffer[buffer.Length - 3] != crc[0] || buffer[buffer.Length - 2] != crc[1])
 				return false;
 
 			byte bType = buffer[1];
