@@ -17,10 +17,10 @@ namespace Server
 		private string m_sIPAddress = null;
 		private int m_nPort = 0;
 
-		private PacketQueue m_packetQueue = null;
+		private DataQueue m_dataQueue = null;
 
 		private object m_sendLockObject = new object();
-		private Queue<FullPacket> m_sendPackets = new Queue<FullPacket>();
+		private Queue<Data> m_sendDatas = new Queue<Data>();
 
 		private DateTime m_lastPingCheckTime = DateTime.MinValue;
 
@@ -47,7 +47,7 @@ namespace Server
 			m_sIPAddress = ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString();
 			m_nPort = ((IPEndPoint)m_socket.RemoteEndPoint).Port;
 
-			m_packetQueue = new PacketQueue();
+			m_dataQueue = new DataQueue();
 
 			m_id = Guid.NewGuid();
 
@@ -112,13 +112,13 @@ namespace Server
 					return false;
 
 				//
-				// 패킷큐에서 인스턴스 호출
+				// 데이터큐에서 인스턴스 호출
 				//
 
-				FullPacket fullPacket = m_packetQueue.GetPacket();
-				fullPacket.Set(PacketType.EventData, EventData.ToBytes(eventData));
+				Data data = m_dataQueue.GetData();
+				data.Set(PacketType.EventData, EventData.ToBytes(eventData));
 
-				Send(fullPacket);
+				Send(data);
 			}
 			catch
 			{
@@ -136,13 +136,13 @@ namespace Server
 					return false;
 
 				//
-				// 패킷큐에서 인스턴스 호출
+				// 데이터큐에서 인스턴스 호출
 				//
 
-				FullPacket fullPacket = m_packetQueue.GetPacket();
-				fullPacket.Set(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
+				Data data = m_dataQueue.GetData();
+				data.Set(PacketType.OperationResponse, OperationResponse.ToBytes(operationResponse));
 
-				Send(fullPacket);
+				Send(data);
 			}
 			catch
 			{
@@ -152,13 +152,13 @@ namespace Server
 			return true;
 		}
 
-		private void Send(FullPacket packet)
+		private void Send(Data data)
 		{
 			lock (m_sendLockObject)
 			{
-				m_sendPackets.Enqueue(packet);
+				m_sendDatas.Enqueue(data);
 
-				if (m_sendPackets.Count > 1)
+				if (m_sendDatas.Count > 1)
 					return;
 			}
 
@@ -172,18 +172,18 @@ namespace Server
 				if (m_bDisposed)
 					return;
 
-				FullPacket fullPacket = null;
+				Data data = null;
 
 				lock (m_sendLockObject)
 				{
-					fullPacket = m_sendPackets.Peek();
+					data = m_sendDatas.Peek();
 				}
 
 				//
 				// 직렬화
 				//
 
-				byte[] buffer = FullPacket.ToBytes(fullPacket);
+				byte[] buffer = Data.ToBytes(data);
 
 				//
 				// Packet의 바이트수 + Packet 클라이언트에 전달
@@ -214,18 +214,18 @@ namespace Server
 					return;
 
 				//
-				// Send완료후 전달패킷큐에서 해당 데이터 삭제
+				// Send완료후 전달데이터큐에서 해당 데이터 삭제
 				//
 
-				FullPacket packet = m_sendPackets.Dequeue();
-				m_packetQueue.ReturnPacket(packet);
+				Data data = m_sendDatas.Dequeue();
+				m_dataQueue.ReturnData(data);
 
-				if (m_sendPackets.Count == 0)
+				if (m_sendDatas.Count == 0)
 					return;
 			}
 
 			//
-			// 이후 전달패킷큐에 아직 전달할 데이터가 있을경우 다시 전달 시작
+			// 이후 전달데이터큐에 아직 전달할 데이터가 있을경우 다시 전달 시작
 			//
 
 			StartSend();
@@ -241,7 +241,7 @@ namespace Server
 
 		private async void Receive()
 		{
-			FullPacket fullPacket = null;
+			Data data = null;
 
 			try
 			{
@@ -268,16 +268,16 @@ namespace Server
 					//
 					// 역직렬화
 					//
-					fullPacket = m_packetQueue.GetPacket();
-					FullPacket.ToFullPacket(buffer, ref fullPacket);
+					data = m_dataQueue.GetData();
+					Data.ToData(buffer, ref data);
 
-					switch (fullPacket.type)
+					switch (data.type)
 					{
 						// Timeout 갱신 처리
 						case PacketType.PingCheck: OnPingCheck(); break;
 
 						// 커맨드 처리
-						case PacketType.OperationRequest: OnOperationRequest(OperationRequest.ToOperationRequest(fullPacket.packet)); break;
+						case PacketType.OperationRequest: OnOperationRequest(OperationRequest.ToOperationRequest(data.packet)); break;
 
 						default:
 							throw new Exception("Not Valied PacketType");
@@ -307,7 +307,7 @@ namespace Server
 			{
 				m_bAwaiting = false;
 
-				m_packetQueue.ReturnPacket(fullPacket);
+				m_dataQueue.ReturnData(data);
 			}
 		}
 
@@ -333,10 +333,10 @@ namespace Server
 
 			List<byte> fullBuffer = new List<byte>();
 
-			FullPacket fullPacket = m_packetQueue.GetPacket();
-			fullPacket.Set(PacketType.PingCheck, new byte[] { });
+			Data data = m_dataQueue.GetData();
+			data.Set(PacketType.PingCheck, new byte[] { });
 
-			Send(fullPacket);
+			Send(data);
 		}
 
 		protected abstract void OnOperationRequest(OperationRequest request);
@@ -375,8 +375,8 @@ namespace Server
 			{
 				lock (m_sendLockObject)
 				{
-					m_sendPackets.Clear();
-					m_packetQueue.Clear();
+					m_sendDatas.Clear();
+					m_dataQueue.Clear();
 				}
 
 				SendDisconnectResponse();

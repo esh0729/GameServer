@@ -13,7 +13,7 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		private Socket m_serverSocket = null;
+		private Socket m_listener = null;
 		private Dictionary<Guid, PeerBase> m_peers = new Dictionary<Guid, PeerBase>();
 
 		private object m_syncObject = new object();
@@ -36,11 +36,11 @@ namespace Server
 
 		protected void Start(int nPort, int nBackLogCount = 128, int nConnectionTimeoutInterval = 30000)
 		{
-			m_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			m_listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, nPort);
 
-			m_serverSocket.Bind(ipEndPoint);
-			m_serverSocket.Listen(nBackLogCount);
+			m_listener.Bind(ipEndPoint);
+			m_listener.Listen(nBackLogCount);
 
 			m_nConnectionTimeoutInternal = nConnectionTimeoutInterval;
 		}
@@ -60,7 +60,7 @@ namespace Server
 
 				PeerBase peer = null;
 
-				Socket clientSocket = await Task.Factory.FromAsync<Socket>(m_serverSocket.BeginAccept(null, null), m_serverSocket.EndAccept);
+				Socket clientSocket = await Task.Factory.FromAsync<Socket>(m_listener.BeginAccept(null, null), m_listener.EndAccept);
 
 				lock (m_syncObject)
 				{
@@ -128,7 +128,7 @@ namespace Server
 				}
 			}
 
-			m_serverSocket.Close();
+			m_listener.Close();
 
 			//
 			//
@@ -149,8 +149,8 @@ namespace Server
 		{
 			byte[] buffer = new byte[] { };
 
-			m_serverSocket.Send(buffer);
-			m_serverSocket.Receive(buffer);
+			m_listener.Send(buffer);
+			m_listener.Receive(buffer);
 		}
 
 		protected abstract void OnTearDown();

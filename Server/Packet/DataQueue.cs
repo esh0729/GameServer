@@ -6,29 +6,29 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-	public class PacketQueue
+	public class DataQueue
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
 		private object m_lockObject = new object();
-		private Queue<FullPacket> m_queue = new Queue<FullPacket>();
+		private Queue<Data> m_queue = new Queue<Data>();
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
-		public FullPacket GetPacket()
+		public Data GetData()
 		{
 			lock (m_lockObject)
 			{
 				if (m_queue.Count > 0)
 					return m_queue.Dequeue();
 				else
-					return CreatePacket();
+					return CreateData();
 			}
 		}
 
-		public void ReturnPacket(FullPacket packet)
+		public void ReturnData(Data packet)
 		{
 			if (packet == null)
 				return;
@@ -41,9 +41,9 @@ namespace Server
 			}
 		}
 
-		private FullPacket CreatePacket()
+		private Data CreateData()
 		{
-			return new FullPacket();
+			return new Data();
 		}
 
 		public void Clear()
