@@ -19,8 +19,6 @@ namespace Server
 		private object m_syncObject = new object();
 
 		private int m_nConnectionTimeoutInternal = 0;
-
-		private bool m_bAccpetAwaiting = false;
 		private bool m_bDiposed = false;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,51 +34,57 @@ namespace Server
 
 		protected void Start(int nPort, int nBackLogCount = 128, int nConnectionTimeoutInterval = 30000)
 		{
+			//
+			// 리스너 생성 및 수신 시작
+			//
+
 			m_listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, nPort);
-
 			m_listener.Bind(ipEndPoint);
 			m_listener.Listen(nBackLogCount);
 
 			m_nConnectionTimeoutInternal = nConnectionTimeoutInterval;
+
+			//
+			// 연결 대기
+			//
+
+			m_listener.BeginAccept(AcceptCallback, null);
 		}
 
 		protected abstract PeerBase CreatePeer(PeerInit peerInit);
 		
 		protected virtual void OnAccpetError(Exception ex)
 		{
-			Console.WriteLine(ex.Message);
 		}
 
-		private async void Accpet()
+		private void AcceptCallback(IAsyncResult result)
 		{
+			if (m_bDiposed)
+				return;
+
+			PeerBase peer = null;
+
 			try
 			{
-				m_bAccpetAwaiting = true;
-
-				PeerBase peer = null;
-
-				Socket clientSocket = await Task.Factory.FromAsync<Socket>(m_listener.BeginAccept(null, null), m_listener.EndAccept);
+				Socket client = m_listener.EndAccept(result);
 
 				lock (m_syncObject)
 				{
-					try
-					{
-						peer = CreatePeer(new PeerInit(this, clientSocket));
-						m_peers.Add(peer.id, peer);
-					}
-					catch (Exception ex)
-					{
-						if (peer != null)
-							peer.Disconnect();
-
-						OnAccpetError(ex);
-					}
+					peer = CreatePeer(new PeerInit(this, client));
+					m_peers.Add(peer.id, peer);
 				}
+			}
+			catch (Exception ex)
+			{
+				if (peer != null)
+					peer.Disconnect();
+
+				OnAccpetError(ex);
 			}
 			finally
 			{
-				m_bAccpetAwaiting = false;
+				m_listener.BeginAccept(AcceptCallback, null);
 			}
 		}
 
@@ -88,9 +92,6 @@ namespace Server
 		{
 			if (m_bDiposed)
 				return;
-
-			if (!m_bAccpetAwaiting)
-				Accpet();
 
 			lock (m_syncObject)
 			{
