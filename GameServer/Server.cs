@@ -121,7 +121,7 @@ namespace GameServer
 			// 서버 시작
 			//
 
-			Start(7000);
+			Start(AppConfig.port);
 
 			LogUtil.System(GetType(), "GameServer Started.");
 			Console.WriteLine("Server start");

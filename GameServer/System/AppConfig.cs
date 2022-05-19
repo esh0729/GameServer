@@ -8,6 +8,11 @@ namespace GameServer
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Static Properties
 
+		public static int port
+		{
+			get { return Convert.ToInt32(ConfigurationManager.AppSettings["port"]); }
+		}
+
 		public static int gameServerId
 		{
 			get { return Convert.ToInt32(ConfigurationManager.AppSettings["gameServerId"]); }
