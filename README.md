@@ -3,7 +3,7 @@
 
 프로젝트
 - ClientCommon : 클라이언트와 통신에 필요한 프로토콜 프로젝트
-- GameServer : 실제 인게임 구현 프로젝트
+- GameServer : 인게임 구현 프로젝트
 - Server : Socket 통신 구현 프로젝트
 - ServerFramework : 인게임 구현에 필요한 Base클래스 및 Util클래스의 집합 프로젝트
 
