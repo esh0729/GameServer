@@ -1,5 +1,5 @@
 # GameServer
-.NET Framework를 이용한 Scoket 서버
+.NET Framework기반의 Socket통신 게임서버
 
 프로젝트
 - ClientCommon : 클라이언트와 통신에 필요한 프로토콜 프로젝트
