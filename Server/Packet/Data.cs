@@ -8,10 +8,9 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Constants
 
-		public const byte STX = 0x02;
-		public const byte ETX = 0x03;
-
-		public const int kNonPacketDataSize = 9;
+		public const int kLengthSize = 4;
+		public const int kChecksumSize = 2;
+		public const int kNonPacketDataSize = 11;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
@@ -49,10 +48,8 @@ namespace Server
 			// 버퍼에 데이터 삽입
 			//
 
-			nBufferLength = 0;
+			nBufferLength = kLengthSize;
 
-			// 본문 시작
-			buffer[nBufferLength++] = STX;
 			// 패킷 타입
 			buffer[nBufferLength++] = (byte)m_type;
 			// 패킷 길이
@@ -66,14 +63,15 @@ namespace Server
 				Array.Copy(m_packet, 0, buffer, nBufferLength, m_nPacketLength);
 				nBufferLength += m_nPacketLength;
 			}
-			// 체크섬(순환중복검사)
-			byte[] checkArray = new byte[nBufferLength - 1];
-			Array.Copy(buffer, 1, checkArray, 0, checkArray.Length);
-			byte[] crc = BitConverter.GetBytes(Crc16.Calc(checkArray));
-			buffer[nBufferLength++] = crc[0];
-			buffer[nBufferLength++] = crc[1];
-			// 본문 종료
-			buffer[nBufferLength++] = ETX;
+			// 체크섬(순환중복검사) 전체 길이는 체크하지 않음
+			ushort usChecksum = Crc16.Calc(buffer, kLengthSize, nBufferLength);
+			buffer[nBufferLength++] = (byte)(0x00ff & usChecksum);
+			buffer[nBufferLength++] = (byte)(0x00ff & (usChecksum >> 8));
+			// 전체 길이
+			buffer[0] = (byte)(0x000000ff & nBufferLength);
+			buffer[1] = (byte)(0x000000ff & (nBufferLength >> 8));
+			buffer[2] = (byte)(0x000000ff & (nBufferLength >> 16));
+			buffer[3] = (byte)(0x000000ff & (nBufferLength >> 24));
 		}
 
 		public bool SetData(byte[] buffer, int nLength)
@@ -82,32 +80,23 @@ namespace Server
 				return false;
 
 			//
-			// STX, ETX 검사
-			//
-
-			if (buffer[0] != STX || buffer[nLength - 1] != ETX)
-				return false;
-
-			
-
-			//
 			// 체크섬(순환중복검사)
 			//
 
-			byte[] checkArray = new byte[nLength - 4];
-			Array.Copy(buffer, 1, checkArray, 0, checkArray.Length);
-			byte[] crc = BitConverter.GetBytes(Crc16.Calc(checkArray));
+			int nCurrentIndex = kLengthSize;
 
-			if (buffer[nLength - 3] != crc[0] || buffer[nLength - 2] != crc[1])
+
+			ushort usChecksum = Crc16.Calc(buffer, nCurrentIndex, nLength - 2);
+			if (buffer[nLength - 2] != (byte)(0x00ff & usChecksum) || buffer[nLength - 1] != (byte)(0x00ff & (usChecksum >> 8)))
 				return false;
 
 			//
 			// 패킷
 			//
 
-			m_type = (PacketType)buffer[1];
-			m_nPacketLength = (int)(buffer[2] | buffer[3] << 8 | buffer[4] << 16 | buffer[5] << 24);
-			Array.Copy(buffer, 6, m_packet, 0, m_nPacketLength);
+			m_type = (PacketType)buffer[nCurrentIndex++];
+			m_nPacketLength = (int)(buffer[nCurrentIndex++] | buffer[nCurrentIndex++] << 8 | buffer[nCurrentIndex++] << 16 | buffer[nCurrentIndex++] << 24);
+			Array.Copy(buffer, nCurrentIndex, m_packet, 0, m_nPacketLength);
 
 			return true;
 		}
