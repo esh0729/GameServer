@@ -34,7 +34,7 @@ namespace Server
 			set { m_nCurrentIndex = value; }
 		}
 
-		public int useLength
+		public int receiveLength
 		{
 			get { return m_nUseLength; }
 			set { m_nUseLength = value; }
