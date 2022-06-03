@@ -106,13 +106,13 @@ namespace Server
 		{
 		}
 
-		// 송신 콜백 함수
+		// 수신 콜백 함수
 		private void ReceiveCallback(IAsyncResult result)
 		{
 			if (m_bDisposed)
 				return;
 
-			// 송신 버퍼
+			// 수신 버퍼
 			DataBuffer dataBuffer = (DataBuffer)result.AsyncState;
 
 			Data data = null;
