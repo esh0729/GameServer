@@ -7,6 +7,10 @@ using System.Threading;
 
 namespace Server
 {
+	//
+	// 데이터 송수신을 담당하는 클래스
+	//
+
 	public abstract class PeerBase
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -14,8 +18,6 @@ namespace Server
 
 		private ApplicationBase m_applicationBase = null;
 		private Socket m_socket = null;
-		private string m_sIPAddress = null;
-		private int m_nPort = 0;
 
 		private DataQueue m_dataQueue = null;
 
@@ -43,8 +45,6 @@ namespace Server
 
 			m_applicationBase = peerInit.applicationBase;
 			m_socket = peerInit.socket;
-			m_sIPAddress = ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString();
-			m_nPort = ((IPEndPoint)m_socket.RemoteEndPoint).Port;
 
 			m_dataQueue = new DataQueue();
 
@@ -63,12 +63,12 @@ namespace Server
 
 		public string ipAddress
 		{
-			get { return m_sIPAddress; }
+			get { return ((IPEndPoint)m_socket.RemoteEndPoint).Address.ToString(); }
 		}
 
 		public int port
 		{
-			get { return m_nPort; }
+			get { return ((IPEndPoint)m_socket.RemoteEndPoint).Port; }
 		}
 
 		public bool disposed
@@ -266,7 +266,7 @@ namespace Server
 
 			try
 			{
-				// 전송 버퍼가 없을 경우 생성(전송은 1번에 1건만 처리 되기때문에 전송 버터는 1개만 필요)
+				// 전송 버퍼가 없을 경우 생성(전송은 1번에 1건만 처리 되기때문에 전송 버퍼는 1개만 필요)
 				if (m_sendBuffer == null)
 					m_sendBuffer = new DataBuffer();
 
