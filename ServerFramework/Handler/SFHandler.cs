@@ -23,16 +23,6 @@ namespace ServerFramework
 			get { return m_peer; }
 		}
 
-		public string functionName
-		{
-			get { return "SFHandler"; }
-		}
-
-		public DateTime queuingTime
-		{
-			get { return DateTime.Now; }
-		}
-
 		public bool logged
 		{
 			get { return m_bLogged; }

@@ -12,11 +12,11 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		// 연산코드(현재는 사용하지 않으므로 0을 전달)
+		// 연산코드
 		private byte m_bOperationCode = 0;
-		// 결과코드(0 - 성공, 0 이외 - 실패)
+		// 결과코드
 		private short m_nReturnCode = 0;
-		// 오류 메세지(결과가 실패일 경우에만 작성)
+		// 오류 메세지
 		private string m_sDebugMessage = "";
 		// 송신할 데이터를 저장하는 컬렉션
 		private Dictionary<byte, object> m_parameters = new Dictionary<byte, object>();

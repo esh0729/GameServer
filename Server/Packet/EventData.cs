@@ -12,7 +12,7 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		// 연산코드(현재는 사용하지 않으므로 0을 전달)
+		// 연산코드
 		private byte m_bCode = 0;
 		// 송신할 데이터를 저장하는 컬렉션
 		private Dictionary<byte, object> m_parameters;

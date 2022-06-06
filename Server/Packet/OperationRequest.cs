@@ -12,7 +12,7 @@ namespace Server
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member variables
 
-		// 요청데이터의 타입을 저장하는 연산코드(1. 응답이 필요한 요청, 2. 응답이 필요없는 요쳥)
+		// 연산코드
 		private byte m_bOperationCode = 0;
 		// 수신한 데이터를 저장하는 컬렉션
 		private Dictionary<byte, object> m_parameters;
