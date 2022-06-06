@@ -2,8 +2,8 @@
 .NET Framework기반의 Socket통신 게임서버
 
 프로젝트 설명
-- ClientCommon : 클라이언트와 통신에 필요한 프로토콜
-- GameServer : 인게임 구현
+- ClientCommon : 클라이언트와 통신에 필요한 프로토콜을 관리하는 프로젝트
+- GameServer : 인게임 구현에 대한 프로젝트
 - Server : 클라이언트와의 연결 및 데이터 송수신 담당하는 프로젝트
 - ServerFramework : 인게임 구현에 필요한 추상 클래스 및 중요 유틸을 담당하는 프로젝트
 
