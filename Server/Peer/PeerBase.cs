@@ -7,10 +7,9 @@ using System.Threading;
 
 namespace Server
 {
-	//
-	// 데이터 송수신을 담당하는 클래스
-	//
-
+	//=====================================================================================================================
+	// 클라이언트와의 연결과 데이터의 송수신을 담당하는 추상 클래스
+	//=====================================================================================================================
 	public abstract class PeerBase
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,9 +125,9 @@ namespace Server
 					// TCP의 경우 데이터의 경계가 없어 2번의 Send를 보내더라도 한번의 Receive로 모든 데이터를받을수 있기 때문에
 					// 1번째 Send의 길이만큼 데이터 처리 이후 처리된 데이터는 삭제 2번째 데이터의 길이를 dataBuffer.receivedLength로 호출
 					// 첫 루프 dataBuffer.receivedLength 0보다 클 경우 여러 Send를 한번의 Receive로 처리 했다고 판단
-					while (dataBuffer.receivedLength > 0)
+					while (dataBuffer.totalReceiveLength > 0)
 					{
-						int nTotalReceivedLength = dataBuffer.receivedLength;
+						int nTotalReceivedLength = dataBuffer.totalReceiveLength;
 
 						// 패킷의 헤더에 데이터 길이 삽입
 						// 패킷의 길이 체크(패킷의 길이 사이즈 만큼 데이터를 수신하지 않았을 경우 받은 위치부터 다시 비동기 수신 시도)
