@@ -166,9 +166,6 @@ namespace ServerFramework
 				// 작업큐 객체의 동시 접근을 막기위한 lock 처리
 				lock (m_syncObject)
 				{
-					if (m_works.Count == 0)
-						return;
-
 					// 작업큐에서 처리된 첫번째 항목 삭제
 					m_works.Dequeue();
 
