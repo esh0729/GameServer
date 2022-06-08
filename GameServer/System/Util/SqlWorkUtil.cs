@@ -14,7 +14,7 @@ namespace GameServer
 
 		public static SFSqlWork CreateUserDBWork(Guid userId)
 		{
-			SFSqlWork dbWork = new SFSqlWork(Util.OpenUserDBConnection());
+			SFSqlWork dbWork = new SFSqlWork(Util.CreateUserDBConnection());
 			dbWork.AddSyncWork(SyncWorkUtil.CreateUserSyncWork(userId));
 
 			return dbWork;
@@ -22,7 +22,7 @@ namespace GameServer
 
 		public static SFSqlWork CreateHeroGameDBWork(Guid heroId)
 		{
-			SFSqlWork dbWork = new SFSqlWork(Util.OpenGameDBConnection());
+			SFSqlWork dbWork = new SFSqlWork(Util.CreateGameDBConnection());
 			dbWork.AddSyncWork(SyncWorkUtil.CreateHeroSyncWork(heroId));
 
 			return dbWork;

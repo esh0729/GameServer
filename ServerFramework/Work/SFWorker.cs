@@ -18,7 +18,7 @@ namespace ServerFramework
 		// 특정 작업을 큐잉하는 큐
 		private Queue<ISFWork> m_works = new Queue<ISFWork>();
 
-		// 작업의 갯수에 따라 작업진행 제어할 신호
+		// 작업의 갯수에 따라 작업진행을 제어할 신호
 		private ManualResetEvent m_nextSignal = new ManualResetEvent(false);
 		// 해당 객체 종료시 남아있는 작업에 대한 실행을 보장하는 신호
 		private ManualResetEvent m_endSignal = new ManualResetEvent(false);
@@ -131,29 +131,46 @@ namespace ServerFramework
 		//=====================================================================================================================
 		private void RunWork()
 		{
-			// 작업큐에서 가장 처음 들어온 작업 호출
-			ISFWork work = m_works.Peek();
-
-			// 작업 실행
-			work.Run();
-
-			// 작업큐 객체의 동시 접근을 막기위한 lock 처리
-			lock (m_syncObject)
+			try
 			{
-				// 작업큐에서 처리된 첫번째 항목 삭제
-				m_works.Dequeue();
+				// 작업큐에서 가장 처음 들어온 작업 호출
+				ISFWork work = m_works.Peek();
 
-				// 작업큐의 갯수 체크
-				if (m_works.Count == 0)
+				// 작업 실행
+				work.Run();
+			}
+			catch
+			{
+
+			}
+
+			try
+			{
+				// 작업큐 객체의 동시 접근을 막기위한 lock 처리
+				lock (m_syncObject)
 				{
-					// 휴식 상태로 전환
-					m_bResting = true;
+					if (m_works.Count == 0)
+						return;
 
-					// 작업 실행 호출 반복문 신호 차단 설정
-					m_nextSignal.Reset();
-					// 리소스 해제 신호 받음 설정
-					m_endSignal.Set();
+					// 작업큐에서 처리된 첫번째 항목 삭제
+					m_works.Dequeue();
+
+					// 작업큐의 갯수 체크
+					if (m_works.Count == 0)
+					{
+						// 휴식 상태로 전환
+						m_bResting = true;
+
+						// 작업 실행 호출 반복문 신호 차단 설정
+						m_nextSignal.Reset();
+						// 리소스 해제 신호 받음 설정
+						m_endSignal.Set();
+					}
 				}
+			}
+			catch
+			{
+
 			}
 		}
 
@@ -167,6 +184,7 @@ namespace ServerFramework
 
 			// 리소스 해제여부를 true로 하며 작업 실행 반복문의 조건을 빠져나옴
 			m_bDisposed = true;
+
 			// 스레드 신호 이벤트 관련 객체 리소스 해제
 			m_nextSignal.Dispose();
 			m_endSignal.Dispose();

@@ -11,6 +11,21 @@ namespace GameServer
 		// Sql
 		//
 
+		public static SqlConnection CreateDBConnection(string sDBPath)
+		{
+			return new SqlConnection(sDBPath);
+		}
+
+		public static SqlConnection CreateUserDBConnection()
+		{
+			return CreateDBConnection(AppConfig.userDBConnection);
+		}
+
+		public static SqlConnection CreateGameDBConnection()
+		{
+			return CreateDBConnection(Server.instance.currentGameServer.dbPath);
+		}
+
 		public static SqlConnection OpenDBConnection(string sDBPath)
 		{
 			SqlConnection conn = new SqlConnection(sDBPath);
