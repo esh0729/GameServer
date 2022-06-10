@@ -28,4 +28,22 @@
 #. LobbyInfoCommandBody(CommandBody 상속) - 로비정보 명령 데이터를 담고 있는 클래스  
 ㄴ LobbyInfoResponseBody(ResponseBody 상속) - 로비정보 명령의 응답 데이터를 담고 있는 클래스  
 #. HeroCreateCommandBody(CommandBody 상속) - 영웅생성 명령 데이터를 담고 있는 클래스  
-ㄴ HeroCreateResponseBody(ResponseBody 상속) - 영웅생성 명령의 응답 데이터를 담고 있는 클래스
+ㄴ HeroCreateResponseBody(ResponseBody 상속) - 영웅생성 명령의 응답 데이터를 담고 있는 클래스  
+
+./Body/CommandBody/Login/InGame  
+#. HeroLoginCommandBody(CommandBody 상속) - 영웅로그인 명령 데이터를 담고 있는 클래스  
+ㄴ HeroLoginResponseBody(ResponseBody 상속) - 영웅로그인 명령의 응답 데이터를 담고 있는 클래스  
+#. HeroLogoutCommandBody(CommandBody 상속) - 영웅로그아웃 명령 데이터를 담고 있는 클래스  
+ㄴ HeroLogoutResponseBody(ResponseBody 상속) - 영웅로그아웃 명령의 응답 데이터를 담고 있는 클래스  
+#. HeroInitEnterCommandBody(CommandBody 상속) - 영웅초기입장 명령 데이터를 담고 있는 클래스  
+ㄴ HeroInitEnterResponseBody(ResponseBody 상속) - 영웅초기입장 명령의 응답 데이터를 담고 있는 클래스  
+
+./Body/CommandBody/Login/Action  
+#. ActionCommandBody(CommandBody 상속) - 행동 명령 데이터를 담고 있는 클래스  
+ㄴ ActionResponseBody(ResponseBody 상속) - 행동 명령의 응답 데이터를 담고 있는 클래스  
+
+./Body/CommandBody/Login/Move
+#. HeroMoveStartCommandBody(CommandBody 상속) - 영웅이동시작 명령 데이터를 담고 있는 클래스  
+ㄴ HeroMoveStartResponseBody(ResponseBody 상속) - 영웅이동시작 명령의 응답 데이터를 담고 있는 클래스  
+#. HeroMoveCommandBody(CommandBody 상속) - 영웅이동 명령 데이터를 담고 있는 클래스  
+ㄴ HeroMoveResponseBody(ResponseBody 상속) - 영웅이동 명령의 응답 데이터를 담고 있는 클래스  
