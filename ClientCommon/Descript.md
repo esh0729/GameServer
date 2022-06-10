@@ -6,7 +6,7 @@
 #. PacketWriter(BinaryWriter 상속) - 데이터 송수신에 사용되는 패킷의 직렬화를 추가로 처리하는 클래스(BinaryWriter로 직렬화 할수 없는 객체를 직렬화)  
 
 ./PacketData  
-#. PacketData - 데이터 송수신에 처리될 데이터의 직렬화, 역직렬화 함수를 지원하는 추상 클래스 
+#. PacketData - 데이터 송수신에 처리될 데이터의 직렬화, 역직렬화 함수를 지원하는 추상 클래스  
 #. PDVector3 - 송수신에 사용 될 위치 정보를 저장하고 있는 구조체  
 ./PacketData/Hero  
 #. PDHero(PacketData 상속) - 송수신에 사용 될 다른 영웅의 정보를 저장하는 클래스  
