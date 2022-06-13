@@ -47,3 +47,22 @@
 ㄴ HeroMoveStartResponseBody(ResponseBody 상속) - 영웅이동시작 명령의 응답 데이터를 담고 있는 클래스  
 #. HeroMoveCommandBody(CommandBody 상속) - 영웅이동 명령 데이터를 담고 있는 클래스  
 ㄴ HeroMoveResponseBody(ResponseBody 상속) - 영웅이동 명령의 응답 데이터를 담고 있는 클래스  
+#. HeroMoveEndCommandBody(CommandBody 상속) - 영웅이동종료 명령 데이터를 담고 있는 클래스  
+ㄴ HeroMoveEndResponseBody(ResponseBody 상속) - 영웅이동종료 명령의 응답 데이터를 담고 있는 클래스  
+
+./Body/ServerEventBody  
+#. ServerEventBody(Body 상속) - 서버 이벤트(요청 없이 서버에서 클라이언트로 송신)의 데이터를 담고 있는 메인 추상 클래스  
+
+./Body/ServerEventBody/Account  
+#. SEBLoginDuplicatedEventBody(ServerEventBody 상속) - 계정로그인중복 서버 이벤트 데이터를 담고 있는 클래스  
+
+./Body/ServerEventBody/Hero  
+#. SEBHeroActionStartedEventBody(ServerEventBody 상속) - 다른영웅행동시작 서버 이벤트 데이터를 담고 있는 클래스  
+#. SEBHeroEnterEventBody(ServerEventBody 상속) - 다른영웅입장 서버 이벤트 데이터를 담고 있는 클래스  
+#. SEBHeroExitEventBody(ServerEventBody 상속) - 다른영웅퇴장 서버 이벤트 데이터를 담고 있는 클래스  
+#. SEBHeroMoveEventBody(ServerEventBody 상속) - 다른영웅이동 서버 이벤트 데이터를 담고 있는 클래스  
+
+./Body/ServerEventBody/Place  
+#. SEBHeroInterestedAreaEnterEventBody(ServerEventBody 상속) - 다른영웅관심영역입장 서버 이벤트 데이터를 담고 있는 클래스  
+#. SEBHeroInterestedAreaExitEventBody(ServerEventBody 상속) - 다른영웅관심영역퇴장 서버 이벤트 데이터를 담고 있는 클래스  
+#. SEBInterestedAreaChangedEventBody(ServerEventBody 상속) - 관심영역변경 서버 이벤트 데이터를 담고 있는 클래스
