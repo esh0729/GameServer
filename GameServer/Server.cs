@@ -71,7 +71,7 @@ namespace GameServer
 			ThreadPool.GetMaxThreads(out nMaxWorkerThreads, out nMaxCompletionPortThreads);
 
 			Console.WriteLine("nMinWorkerThreads = " + nMinWorkerThreads + ", nMaxWorkerThreads = " + nMaxWorkerThreads + ", nMinCompletionPortThreads = " + nMinCompletionPortThreads + ", nMaxCompletionPortThreads = " + nMaxCompletionPortThreads);
-			ThreadPool.SetMinThreads(nMaxWorkerThreads, nMaxCompletionPortThreads);
+			ThreadPool.SetMinThreads(nMaxWorkerThreads, nMinCompletionPortThreads);
 
 			//
 			// 명령핸들러팩토리
