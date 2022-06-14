@@ -1,6 +1,6 @@
 ./  
 #. RequestType - 클라이언트 요청에 대한 타입(Server.OperationRequest.operationcode 에 사용)  
-#. SFPeerImpl(Server.PeerBase 상속) - 클라이언트 요청의 처리에 대한 분류와 클라이언트 송신에대한 응답 또는 이벤트 인스턴스를 생성하는 추상 클래스  
+#. SFPeerImpl(Server.PeerBase 상속) - 클라이언트 요청의 처리에 대한 분류와 클라이언트 송신에대한 응답 또는 이벤트 객체를 생성하는 추상 클래스  
 #. SFRandom - 난수를 생성하는 클래스  
 
 ./Parameter  
@@ -16,11 +16,11 @@
 
 ./Work/Sql  
 #. SFSync - 데이터베이스 작업의 동시 처리 위해 대기 및 스레드 이벤트 신호를 처리하는 동기처리 클래스
-#. SFSyncFactory - SFSync 인스턴스를 생성 및 관리하는 클래스  
-#. SFSyncWork - SFSync 인스턴스를 호출하여 작업 대기 및 진행을 처리하는 클래스  
+#. SFSyncFactory - SFSync 객체를 생성 및 관리하는 클래스  
+#. SFSyncWork - SFSync 객체를 호출하여 작업 대기 및 진행을 처리하는 클래스  
 #. SyncWorkType - 데이터베이스 동기작업타입
 #. SFSqlWork - MS-SQL 데이터베이스에 대한 Sql(쿼리 또는 저장프로시저) 작업을 실행하는 클래스  
 
 ./Handler  
 #. SFHandler(ISFWork 상속) - 수신된 클라이언트 요청을 처리하기 위한 초기화 및 실행 함수를 제공하는 추상 클래스  
-#. SFHandlerFactory - SFHandler를 상속받은 작업 핸들러의 인스턴스 생성을 위한 클라이언트 명령타입과 핸들러 클래스 타입을 저장하는 추상 클래스  
+#. SFHandlerFactory - SFHandler를 상속받은 작업 핸들러의 객체 생성을 위한 클라이언트 명령타입과 핸들러 클래스 타입을 저장하는 추상 클래스  
