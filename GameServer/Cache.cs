@@ -61,7 +61,7 @@ namespace GameServer
 		// 대륙
 		//
 
-		// 현재 생성된 대륙 객체 목록
+		// 현재 생성된 대륙인스턴스 목록
 		private Dictionary<int, ContinentInstance> m_continentInstances = new Dictionary<int, ContinentInstance>();
 
 		//
@@ -127,20 +127,20 @@ namespace GameServer
 		}
 
 		//=====================================================================================================================
-		// 대륙 객체를 생성하는 함수
+		// 대륙인스턴스 객체를 생성하는 함수
 		//=====================================================================================================================
 		private void InitContinent()
 		{
-			// 리소스 데이터중 대륙 목록을 모두 돌면서 대륙 객체 생성
+			// 리소스 데이터중 대륙 목록을 모두 돌면서 대륙인스턴스 객체 생성
 			foreach (Continent continent in Resource.instance.continents.Values)
 			{
-				// 대륙 객체 생성
+				// 대륙  생성
 				ContinentInstance continentInstance = new ContinentInstance();
 				
-				// 대륙 객체 접근을 위한 싱크객체 lock 처리
+				// 대륙인스턴스 객체 접근을 위한 싱크객체 lock 처리
 				lock (continentInstance.syncObject)
 				{
-					// 대륙 객체 초기화
+					// 대륙인스턴스 객체 초기화
 					continentInstance.Init(continent);
 
 					// 장소 컬렉션에 추가
@@ -238,7 +238,7 @@ namespace GameServer
 			// 장소 객체 타입에 따른 추가 저장
 			switch (place.type)
 			{
-				// 장소 객체 대륙 타입일 경우 대륙 객체 컬렉션에 저장
+				// 장소 객체 대륙 타입일 경우 대륙인스턴스 객체 컬렉션에 저장
 				case PlaceType.Continent: AddContinentInstance((ContinentInstance)place); break;
 			}
 		}
@@ -256,7 +256,7 @@ namespace GameServer
 			// 장소 객체 타입에 따른 추가 삭제
 			switch (place.type)
 			{
-				// 장소 객체 대륙 타입일 경우 대륙 객체 컬렉션에서 삭제
+				// 장소 객체 대륙 타입일 경우 대륙인스턴스 객체 컬렉션에서 삭제
 				case PlaceType.Continent: RemoveContinentInstance(((ContinentInstance)place).continent.id); break;
 			}
 		}
@@ -266,9 +266,9 @@ namespace GameServer
 		//
 
 		//=====================================================================================================================
-		// 대륙 객체를 컬렉션에 저장하는 함수
+		// 대륙인스턴스 객체를 컬렉션에 저장하는 함수
 		//
-		// continentInstance : 저장할 대륙 객체
+		// continentInstance : 저장할 대륙인스턴스 객체
 		//=====================================================================================================================
 		private void AddContinentInstance(ContinentInstance continentInstance)
 		{
@@ -276,7 +276,7 @@ namespace GameServer
 		}
 
 		//=====================================================================================================================
-		// 대륙 객체를 컬렉션에서 삭제하는 함수
+		// 대륙인스턴스 객체를 컬렉션에서 삭제하는 함수
 		//
 		// nContinentId : 삭제할 대륙 ID
 		//=====================================================================================================================
@@ -286,8 +286,8 @@ namespace GameServer
 		}
 
 		//=====================================================================================================================
-		// 대륙 객체를 컬렉션에서 호출하는 함수
-		// Return : 매개변수와 매칭되는 대륙 객체, 없을 경우 null 반환
+		// 대륙인스턴스 객체를 컬렉션에서 호출하는 함수
+		// Return : 매개변수와 매칭되는 대륙인스턴스 객체, 없을 경우 null 반환
 		//
 		// nContinentId : 호출할 대륙 ID
 		//=====================================================================================================================
