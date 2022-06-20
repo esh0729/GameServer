@@ -23,4 +23,4 @@
 
 ./Handler  
 #. SFHandler(ISFWork 상속) - 수신된 클라이언트 요청을 처리하기 위한 초기화 및 실행 함수를 제공하는 추상 클래스  
-#. SFHandlerFactory - SFHandler를 상속받은 작업 핸들러의 객체 생성을 위한 클라이언트 명령타입과 핸들러 클래스 타입을 저장하는 추상 클래스  
+#. SFHandlerFactory - SFHandler를 상속받은 작업 핸들러의 객체 생성을 위한 요청 타입과 핸들러 클래스 타입을 저장하는 추상 클래스
