@@ -4,4 +4,5 @@
 #. Server(ApplicationBase 상속) - 서버의 초기화 및 시작, 인게임의 클라이언트 피어를 관리하는 클래스  
 
 ./Client/Handler  
-#. CommandHandlerFactory (SFHandlerFactory 상속) - 클라이언트 명령 핸들러의 객체 생성을 위한 명령 타입과 클래스 타입을 생성 및 관리하는 클래스
+#. CommandHandlerFactory (SFHandlerFactory 상속) - 클라이언트 명령 핸들러의 객체 생성을 위한 명령 타입과 클래스 타입을 생성 및 관리하는 클래스  
+#. Handler(SFHandler 상속) - 클라이언트 요청에 대한 작업을 동기처리 하여 시작하는 추상 클래스  
