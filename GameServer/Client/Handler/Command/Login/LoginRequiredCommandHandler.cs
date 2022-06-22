@@ -38,5 +38,14 @@ namespace GameServer
 		}
 
 		protected abstract void OnLoginRequiredCommandHandle();
+
+		protected override void ErrorFrom(StringBuilder sb)
+		{
+			base.ErrorFrom(sb);
+
+			sb.Append("# AccoutId : ");
+			sb.Append(m_myAccount.id);
+			sb.AppendLine();
+		}
 	}
 }
