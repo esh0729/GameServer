@@ -13,3 +13,4 @@
 ./Client/Handler/Command/Login  
 #. LoginCommandHandler(CommandHandler 상속) - 계정 로그인에 대한 클라이언트 명령을 처리하는 클래스  
 #. LoginRequiredCommandHandler(CommandHandler 상속) - 계정 로그인이 필요한 클라이언트 명령을 지원하는 추상 클래스  
+#. LobbyInfoCommandHandler(LoginRequiredCommandHandler 상속) - 계정 영웅 정보 호출 대한 클라이언트 명령을 처리하는 클래스  
