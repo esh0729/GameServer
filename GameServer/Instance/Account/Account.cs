@@ -76,6 +76,11 @@ namespace GameServer
 			get { return m_status == AccountStatus.Login; }
 		}
 
+		public bool isHeroLoggedIn
+		{
+			get { return m_currentHero != null; }
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Member functions
 
