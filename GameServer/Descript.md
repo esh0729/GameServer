@@ -15,3 +15,6 @@
 #. LoginRequiredCommandHandler(CommandHandler 상속) - 계정 로그인이 필요한 클라이언트 명령을 지원하는 추상 클래스  
 #. LobbyInfoCommandHandler(LoginRequiredCommandHandler 상속) - 계정 영웅 정보 호출 대한 클라이언트 명령을 처리하는 클래스  
 #. HeroCreateCommandHandler(LoginRequiredCommandHandler 상속) - 영웅 생성에 대한 클라이언트 명령을 처리하는 클래스  
+
+./Client/Handler/Command/Login/InGame  
+#. LoginRequiredCommandHandler(LoginRequiredCommandHandler 상속) - 영웅 로그인이 필요한 클라이언트 명령을 지원하는 추상 클래스  
