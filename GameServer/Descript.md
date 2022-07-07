@@ -21,3 +21,6 @@
 #. HeroLoginCommandHandler(LoginRequiredCommandHandler 상속) - 영웅 로그인에 대한 클라이언트 명령을 처리하는 클래스  
 #. HeroLogoutCommandHandler(InGameCommandHandler 상속) - 영웅 로그아웃에 대한 클라이언트 명령을 처리하는 클래스  
 #. HeroInitEnterCommandHandler(InGameCommandHandler 상속) - 영웅 로그인 이후 초기 입장에 대한 클라이언트 명령을 처리하는 클래스  
+
+./Client/Handler/Command/Login/InGame/Action  
+#. ActionCommandHandler(LoginRequiredCommandHandler 상속) - 캐릭터 행동 클라이언트 명령을 처리하는 클래스  
