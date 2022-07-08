@@ -7,10 +7,17 @@ using ClientCommon;
 
 namespace GameServer
 {
+	//=====================================================================================================================
+	// (LoginRequiredCommandHandler 상속) 영웅이동시작 클라이언트 명령을 처리하는 클래스
+	//=====================================================================================================================
 	public class HeroMoveStartCommandHandler : InGameCommandHandler<HeroMoveStartCommandBody, HeroMoveStartResponseBody>
 	{
+		//=====================================================================================================================
+		// 영웅이동시작 완료 이후 클라이언트 응답 전송을 처리하는 함수
+		//=====================================================================================================================
 		protected override void OnInGameCommandHandle()
 		{
+			// 장소 검사
 			PhysicalPlace currentPlace = m_myHero.currentPlace;
 
 			if (currentPlace == null)
@@ -27,16 +34,10 @@ namespace GameServer
 			if (placeInstanceId != currentPlace.instanceId)
 				throw new CommandHandleException(kResult_Error, "현재 장소에서 사용하지 않은 명령입니다.");
 
-			//
-			// 이동 시작
-			//
-
+			// 이동 시작 함수 호출
 			m_myHero.StartMove();
 
-			//
-			// 응답
-			//
-
+			// 클라이언트 응답 전송
 			SendResponseOK(null);
 		}
 	}
