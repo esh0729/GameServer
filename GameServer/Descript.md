@@ -28,3 +28,4 @@
 ./Client/Handler/Command/Login/InGame/Move  
 #. HeroMoveStartCommandHandler(LoginRequiredCommandHandler 상속) - 영웅이동시작 클라이언트 명령을 처리하는 클래스  
 #. HeroMoveCommandHandler(LoginRequiredCommandHandler 상속) - 영웅이동 클라이언트 명령을 처리하는 클래스  
+#. HeroMoveEndCommandHandler(LoginRequiredCommandHandler 상속) - 영웅이동종료 클라이언트 명령을 처리하는 클래스  
