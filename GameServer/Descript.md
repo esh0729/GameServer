@@ -29,3 +29,6 @@
 #. HeroMoveStartCommandHandler(LoginRequiredCommandHandler 상속) - 영웅이동시작 클라이언트 명령을 처리하는 클래스  
 #. HeroMoveCommandHandler(LoginRequiredCommandHandler 상속) - 영웅이동 클라이언트 명령을 처리하는 클래스  
 #. HeroMoveEndCommandHandler(LoginRequiredCommandHandler 상속) - 영웅이동종료 클라이언트 명령을 처리하는 클래스  
+
+./Client/ServerEvent  
+#. ServerEvent - 서버 이벤트 객체 생성 및 클라이언트 피어에게 서버 이벤트 객체 전달하는 클래스  
