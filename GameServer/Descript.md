@@ -32,3 +32,7 @@
 
 ./Client/ServerEvent  
 #. ServerEvent - 서버 이벤트 객체 생성 및 클라이언트 피어에게 서버 이벤트 객체 전달하는 클래스  
+
+./Instance  
+#. Unit - 영웅 및 몬스터의 기본이 되는 추상 클래스  
+
