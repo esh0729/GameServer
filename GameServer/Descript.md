@@ -36,3 +36,6 @@
 ./Instance  
 #. Unit - 영웅 및 몬스터의 기본이 되는 추상 클래스  
 
+./Instance/Account  
+#. Account - 사용자가 서버에 로그인하여 생성되는 사용자의 정보를 저장하고 있는 클래스  
+
