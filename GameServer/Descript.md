@@ -38,5 +38,8 @@
 
 ./Instance/Account  
 #. Account - 사용자가 서버에 로그인하여 생성되는 사용자의 정보를 저장하고 있는 클래스  
-#. AccountStatus - 계정 상태 열거자
+#. AccountStatus - 계정 상태 열거자  
+
+./Instance/Entrance  
+#. EntranceParam - 장소입장에 대한 데이터를 저장하기 위한 추상 클래스  
 
