@@ -42,4 +42,5 @@
 
 ./Instance/Entrance  
 #. EntranceParam - 장소입장에 대한 데이터를 저장하기 위한 추상 클래스  
+#. HeroInitEnterParam - 영웅초기입장에 대한 데이터를 저장하기 위한 클래스  
 
